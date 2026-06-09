@@ -264,47 +264,6 @@ flowchart TB
         SS[Session Helper]
     end
 
-    subgraph DB[(WorkOpsDB - SQL Server)]
-        U[Users & Roles]
-        E[Employees]
-        T[Tasks / Attendance / Leaves]
-    end
-
-    subgraph Panels
-        AD[Admin Panel]
-        MG[Manager Panel]
-        EM[Employee Panel]
-    end
-
-    LP --> LG
-    LG --> AC
-    AC --> PH
-    AC --> SS
-    AC --> U
-    SS --> AD
-    SS --> MG
-    SS --> EM
-    AD --> T
-    MG --> T
-    EM --> T
-    AD --> E
-    MG --> E
-    EM --> E
-```
-
-```mermaid
-flowchart TB
-    subgraph Public
-        LP[Landing Page]
-        LG[Login / Register]
-    end
-
-    subgraph Auth
-        AC[AccountController]
-        PH[Password Helper PBKDF2]
-        SS[Session Helper]
-    end
-
     subgraph Database
         DB[(WorkOpsDB)]
         U[Users & Roles]
