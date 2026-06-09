@@ -1,5 +1,13 @@
 # WorkOps — Smart Company Management System
 
+## 🚀 Overview
+
+**WorkOps** is a comprehensive web-based workforce management system designed to streamline organizational operations. It centralizes employee management, attendance tracking, leave administration, task management, and reporting through dedicated role-based panels for **Admins**, **Managers**, and **Employees**.
+
+The system is built to improve productivity, enhance collaboration, and provide a structured workflow within an organization.
+
+---
+
 **WorkOps** is a web-based company management system built for diploma/final-year projects. It centralizes employee administration, attendance, leave, tasks, and reporting across three role-based panels: **Admin**, **Manager**, and **Employee**.
 
 ---
