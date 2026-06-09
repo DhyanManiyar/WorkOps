@@ -251,6 +251,90 @@ After running `Database.sql`, these demo accounts are available (seed data uses 
 
 ## How the System Works
 
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                              1. USER ACCESS                                 │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│    User opens browser → Navigates to WorkOps URL                            │
+│                              ↓                                               │
+│                    Login Page (/Account/Login)                              │
+│                              ↓                                               │
+│              Enters Email & Password                                         │
+│                              ↓                                               │
+│         AccountController validates credentials                             │
+│                              ↓                                               │
+│              ┌──────────────┴──────────────┐                                │
+│              ↓                              ↓                                │
+│         Valid credentials              Invalid credentials                   │
+│              ↓                              ↓                                │
+│    Session created (8 hours)        Error message + retry                    │
+│              ↓                              ↓                                │
+│    Role detected from database         After 5 fails → Account Locked        │
+│              ↓                                                               │
+│    Redirected to respective panel                                            │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                           2. AUTHENTICATION FLOW                             │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│    Login Request → AccountController                                        │
+│                         ↓                                                    │
+│              sp_AuthenticateUser (Stored Procedure)                         │
+│                         ↓                                                    │
+│         PasswordHelper.VerifyPassword() (SHA256 with salt)                  │
+│                         ↓                                                    │
+│              SessionHelper.SetUserSession()                                 │
+│                         ↓                                                    │
+│         Role-based redirect to respective panel                             │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                           3. DATABASE LAYER                                  │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│    ┌──────────────┐     ┌──────────────┐     ┌──────────────┐               │
+│    │    Users     │────▶│  Employees   │────▶│ Departments  │               │
+│    └──────────────┘     └──────────────┘     └──────────────┘               │
+│           │                    │                    │                        │
+│           ▼                    ▼                    ▼                        │
+│    ┌──────────────┐     ┌──────────────┐     ┌──────────────┐               │
+│    │   Roles      │     │  WorkTasks   │     │  Attendance  │               │
+│    └──────────────┘     └──────────────┘     └──────────────┘               │
+│           │                    │                    │                        │
+│           ▼                    ▼                    ▼                        │
+│    ┌──────────────┐     ┌──────────────┐     ┌──────────────┐               │
+│    │ LeaveRequests│     │ LeaveBalances│     │ Notifications│               │
+│    └──────────────┘     └──────────────┘     └──────────────┘               │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                           4. ROLE-BASED ACCESS                               │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│    ┌─────────────────────────────────────────────────────────────────────┐  │
+│    │                         ADMIN PANEL                                  │  │
+│    │  Full System Access | Employee Management | Department Management  │  │
+│    │  Task Management | Attendance | Leave Management | Reports         │  │
+│    └─────────────────────────────────────────────────────────────────────┘  │
+│                                    │                                         │
+│                                    ▼                                         │
+│    ┌─────────────────────────────────────────────────────────────────────┐  │
+│    │                        MANAGER PANEL                                 │  │
+│    │  Team Management | Task Assignment | Leave Approval | Reports       │  │
+│    └─────────────────────────────────────────────────────────────────────┘  │
+│                                    │                                         │
+│                                    ▼                                         │
+│    ┌─────────────────────────────────────────────────────────────────────┐  │
+│    │                        EMPLOYEE PANEL                                │  │
+│    │  Self-Service | My Tasks | Attendance | Leave Application | Profile │  │
+│    └─────────────────────────────────────────────────────────────────────┘  │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+
 ```mermaid
 flowchart TB
     subgraph Public
