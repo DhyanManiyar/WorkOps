@@ -21,8 +21,6 @@
 - [Documentation](#documentation)
 - [Configuration](#configuration)
 - [Future Enhancements](#future-enhancements)
-- [Uploading to GitHub](#uploading-to-github)
-- [Updating GitHub After New Changes](#updating-github-after-new-changes)
 - [License & Author](#license--author)
 
 ---
@@ -394,7 +392,7 @@ Key settings in **`WorkOps/Web.config`** → `<appSettings>`:
 This project was developed as a **Diploma / Final Year Project**.
 
 - **Project name:** WorkOps — Smart Company Management System  
-- **Author:** *(Add your name, enrollment number, college, and year here)*  
+- **Author:** *Dhyan Maniyar*  
 
 For academic use, please cite or credit appropriately if referenced in other work.
 
