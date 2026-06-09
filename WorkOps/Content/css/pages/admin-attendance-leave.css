@@ -1,0 +1,303 @@
+/* Attendance & Leave modules */
+
+/* Attendance status badges */
+.present-badge {
+    background: #d1fae5;
+    color: #065f46;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.absent-badge {
+    background: #fee2e2;
+    color: #991b1b;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.leave-badge {
+    background: #fef3c7;
+    color: #92400e;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.halfday-badge {
+    background: #cffafe;
+    color: #0e7490;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.avatar-sm {
+    width: 36px;
+    height: 36px;
+    border-radius: var(--wo-radius-md);
+    background: linear-gradient(135deg, var(--wo-primary), var(--wo-secondary));
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-weight: 600;
+    font-size: 12px;
+    flex-shrink: 0;
+}
+
+/* Mark attendance status picker */
+.attendance-status-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+}
+
+@media (max-width: 768px) {
+    .attendance-status-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+.status-badge.attendance-status-option {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 14px 12px;
+    border-radius: var(--wo-radius-md);
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
+    font-size: 14px;
+    font-weight: 500;
+    border: 2px solid transparent;
+}
+
+.status-present {
+    background: #ecfdf5;
+    color: #047857;
+    border-color: #a7f3d0;
+}
+
+.status-absent {
+    background: #fef2f2;
+    color: #b91c1c;
+    border-color: #fecaca;
+}
+
+.status-halfday {
+    background: #ecfeff;
+    color: #0e7490;
+    border-color: #a5f3fc;
+}
+
+.status-leave {
+    background: #fffbeb;
+    color: #b45309;
+    border-color: #fde68a;
+}
+
+.status-badge.status-selected {
+    transform: translateY(-2px);
+    box-shadow: var(--wo-shadow-md);
+    border-color: var(--wo-primary);
+}
+
+/* Report percent badges */
+.badge-good {
+    background: #d1fae5;
+    color: #065f46;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.badge-average {
+    background: #fef3c7;
+    color: #92400e;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.badge-poor {
+    background: #fee2e2;
+    color: #991b1b;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.report-table-foot td {
+    background: #f8fafc;
+    font-weight: 600;
+}
+
+/* Leave dashboard */
+.leave-dashboard-grid {
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: 20px;
+    align-items: start;
+}
+
+@media (max-width: 1100px) {
+    .leave-dashboard-grid { grid-template-columns: 1fr; }
+}
+
+.request-card {
+    background: var(--wo-surface);
+    border: 1px solid var(--wo-border);
+    border-left-width: 4px;
+    border-radius: var(--wo-radius-md);
+    padding: 16px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    transition: box-shadow 0.2s, transform 0.2s;
+}
+
+.request-card:hover {
+    transform: translateX(4px);
+    box-shadow: var(--wo-shadow-md);
+}
+
+.request-card:last-child { margin-bottom: 0; }
+
+.alert-card {
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    border-radius: var(--wo-radius-md);
+    padding: 14px 16px;
+    margin-bottom: 10px;
+}
+
+.alert-card:last-child { margin-bottom: 0; }
+
+.alert-card .progress {
+    height: 6px;
+    border-radius: 999px;
+    background: #fef3c7;
+}
+
+/* Leave requests filters */
+.status-filter {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+}
+
+.filter-btn {
+    padding: 8px 18px;
+    border-radius: 999px;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: background 0.15s, color 0.15s, transform 0.15s;
+    border: 1px solid var(--wo-border);
+}
+
+.filter-btn.active {
+    background: var(--wo-primary);
+    color: #fff;
+    border-color: var(--wo-primary);
+}
+
+.filter-btn:not(.active) {
+    background: var(--wo-surface);
+    color: var(--wo-text-secondary);
+}
+
+.filter-btn:hover:not(.active) {
+    background: #f1f5f9;
+    transform: translateY(-1px);
+}
+
+.request-row {
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.request-row:hover { background: #f8fafc; }
+
+.leave-actions-inline {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.leave-actions-inline .btn { border-radius: var(--wo-radius-md); }
+
+/* Balance cards */
+.balance-card {
+    background: var(--wo-surface);
+    border: 1px solid var(--wo-border);
+    border-left-width: 4px;
+    border-radius: var(--wo-radius-lg);
+    padding: 18px;
+    height: 100%;
+    box-shadow: var(--wo-shadow-sm);
+    transition: box-shadow 0.2s, transform 0.2s;
+}
+
+.balance-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--wo-shadow-md);
+}
+
+.progress-custom {
+    height: 8px;
+    border-radius: 999px;
+    background: #f1f5f9;
+}
+
+.wo-empty-state {
+    text-align: center;
+    padding: 48px 24px;
+    color: var(--wo-text-secondary);
+}
+
+.wo-empty-state svg,
+.wo-empty-state i {
+    color: var(--wo-text-muted);
+    margin-bottom: 12px;
+}
+
+.wo-split-layout__main .data-card,
+.wo-split-layout__side .data-card {
+    height: 100%;
+}
+
+.wo-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.wo-card-header h5 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--wo-text);
+}
+
+.wo-link-muted {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--wo-primary);
+    text-decoration: none;
+}
+
+.wo-link-muted:hover { text-decoration: underline; }
+
+.stat-accent-success .stat-icon svg { color: var(--wo-success); }
+.stat-accent-danger .stat-icon svg { color: var(--wo-danger); }
+.stat-accent-warning .stat-icon svg { color: var(--wo-warning); }
+.stat-accent-info .stat-icon svg { color: var(--wo-primary); }

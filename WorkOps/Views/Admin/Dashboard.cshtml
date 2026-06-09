@@ -1,0 +1,446 @@
+﻿@using WorkOps.Helpers
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewBag.Title = "Dashboard";
+    var roleName = SessionHelper.GetCurrentUserRoleName() ?? "Admin";
+}
+
+<link href="@Url.Content("~/Content/css/pages/admin-dashboard.css")" rel="stylesheet" />
+
+@section TopBarActions {
+    <a href="@Url.Action("Create", "Employee")" class="btn-topbar-primary">
+        <i data-lucide="user-plus" style="width:16px;height:16px;"></i> Add Employee
+    </a>
+    <a href="@Url.Action("Index", "Report")" class="btn-topbar-secondary">
+        <i data-lucide="bar-chart-3" style="width:16px;height:16px;"></i> Reports
+    </a>
+}
+
+<div class="wo-dash animate-fade-up">
+    <!-- Hero -->
+    <header class="wo-dash-hero">
+        <div class="wo-dash-hero__greeting">
+            <h2>Welcome back, @roleName</h2>
+            <p>Organization overview for @DateTime.Now.ToString("dddd, MMMM d, yyyy")</p>
+        </div>
+        <div class="wo-dash-hero__meta">
+            <div class="wo-dash-hero__stat">
+                <div class="wo-dash-hero__stat-value" id="welcomeTotal"><span class="wo-dash-skeleton d-inline-block" style="width:48px;height:28px;"></span></div>
+                <div class="wo-dash-hero__stat-label">Total employees</div>
+            </div>
+            <div class="wo-dash-hero__stat">
+                <div class="wo-dash-hero__stat-value" id="welcomeActive"><span class="wo-dash-skeleton d-inline-block" style="width:40px;height:28px;"></span></div>
+                <div class="wo-dash-hero__stat-label">Active today</div>
+            </div>
+            <div class="wo-dash-hero__stat">
+                <div class="wo-dash-hero__stat-value" id="welcomeDepts"><span class="wo-dash-skeleton d-inline-block" style="width:32px;height:28px;"></span></div>
+                <div class="wo-dash-hero__stat-label">Departments</div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Primary stats (4) -->
+    <div class="wo-dash-stats">
+        <article class="wo-dash-stat">
+            <div class="wo-dash-stat__body">
+                <div class="wo-dash-stat__value" id="totalEmployees">-</div>
+                <div class="wo-dash-stat__label">Total Employees</div>
+                <span class="wo-dash-stat__hint wo-dash-stat__hint--neutral" id="hintEmployees">
+                    <i data-lucide="users" style="width:12px;height:12px;"></i> All registered
+                </span>
+            </div>
+            <div class="wo-dash-stat__icon wo-dash-stat__icon--blue">
+                <i data-lucide="users"></i>
+            </div>
+        </article>
+        <article class="wo-dash-stat">
+            <div class="wo-dash-stat__body">
+                <div class="wo-dash-stat__value" id="activeEmployees">-</div>
+                <div class="wo-dash-stat__label">Active Employees</div>
+                <span class="wo-dash-stat__hint wo-dash-stat__hint--up">
+                    <i data-lucide="trending-up" style="width:12px;height:12px;"></i> Currently active
+                </span>
+            </div>
+            <div class="wo-dash-stat__icon wo-dash-stat__icon--green">
+                <i data-lucide="user-check"></i>
+            </div>
+        </article>
+        <article class="wo-dash-stat">
+            <div class="wo-dash-stat__body">
+                <div class="wo-dash-stat__value" id="totalDepartments">-</div>
+                <div class="wo-dash-stat__label">Departments</div>
+                <span class="wo-dash-stat__hint wo-dash-stat__hint--neutral">
+                    <i data-lucide="building-2" style="width:12px;height:12px;"></i> Active units
+                </span>
+            </div>
+            <div class="wo-dash-stat__icon wo-dash-stat__icon--purple">
+                <i data-lucide="building-2"></i>
+            </div>
+        </article>
+        <article class="wo-dash-stat">
+            <div class="wo-dash-stat__body">
+                <div class="wo-dash-stat__value" id="pendingTasks">-</div>
+                <div class="wo-dash-stat__label">Pending Tasks</div>
+                <span class="wo-dash-stat__hint wo-dash-stat__hint--amber">
+                    <i data-lucide="clock" style="width:12px;height:12px;"></i> Needs attention
+                </span>
+            </div>
+            <div class="wo-dash-stat__icon wo-dash-stat__icon--amber">
+                <i data-lucide="list-todo"></i>
+            </div>
+        </article>
+    </div>
+
+    <!-- Secondary stats -->
+    <div class="wo-dash-stats wo-dash-stats--secondary">
+        <article class="wo-dash-stat">
+            <div class="wo-dash-stat__body">
+                <div class="wo-dash-stat__value" id="totalTasks">-</div>
+                <div class="wo-dash-stat__label">Total Tasks</div>
+            </div>
+            <div class="wo-dash-stat__icon wo-dash-stat__icon--blue">
+                <i data-lucide="check-square"></i>
+            </div>
+        </article>
+        <article class="wo-dash-stat">
+            <div class="wo-dash-stat__body">
+                <div class="wo-dash-stat__value" id="pendingLeaves">-</div>
+                <div class="wo-dash-stat__label">Pending Leave Requests</div>
+            </div>
+            <div class="wo-dash-stat__icon wo-dash-stat__icon--red">
+                <i data-lucide="calendar-clock"></i>
+            </div>
+        </article>
+    </div>
+
+    <!-- Charts row 1 -->
+    <div class="wo-dash-charts">
+        <div class="wo-dash-panel">
+            <div class="wo-dash-panel__head">
+                <h3 class="wo-dash-panel__title">
+                    <i data-lucide="pie-chart"></i> Department Distribution
+                </h3>
+            </div>
+            <div class="wo-dash-panel__chart">
+                <canvas id="deptChart" height="260"></canvas>
+            </div>
+        </div>
+        <div class="wo-dash-panel">
+            <div class="wo-dash-panel__head">
+                <h3 class="wo-dash-panel__title">
+                    <i data-lucide="trending-up"></i> Attendance Trend
+                </h3>
+            </div>
+            <div class="wo-dash-panel__chart">
+                <canvas id="attendanceTrendChart" height="260"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts row 2 -->
+    <div class="wo-dash-charts">
+        <div class="wo-dash-panel">
+            <div class="wo-dash-panel__head">
+                <h3 class="wo-dash-panel__title">
+                    <i data-lucide="bar-chart-3"></i> Task Status Overview
+                </h3>
+            </div>
+            <div class="wo-dash-panel__chart">
+                <canvas id="taskStatusChart" height="260"></canvas>
+            </div>
+        </div>
+        <div class="wo-dash-panel">
+            <div class="wo-dash-panel__head">
+                <h3 class="wo-dash-panel__title">
+                    <i data-lucide="calendar-days"></i> Leave Status
+                </h3>
+            </div>
+            <div class="wo-dash-panel__chart">
+                <canvas id="leaveStatusChart" height="260"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Timeline + Quick actions -->
+    <div class="wo-dash-bottom">
+        <div class="wo-dash-panel">
+            <div class="wo-dash-panel__head">
+                <h3 class="wo-dash-panel__title">
+                    <i data-lucide="activity"></i> Recent Activity
+                </h3>
+            </div>
+            <ul class="wo-timeline" id="recentActivities">
+                <li class="wo-timeline__item">
+                    <div class="wo-timeline__avatar wo-timeline__avatar--default">
+                        <i data-lucide="loader" class="wo-spin" style="width:18px;height:18px;"></i>
+                    </div>
+                    <div class="wo-timeline__content">
+                        <p class="wo-timeline__text">Loading activities…</p>
+                        <span class="wo-timeline__time">Please wait</span>
+                    </div>
+                </li>
+            </ul>
+        </div>
+
+        <div class="wo-dash-panel">
+            <div class="wo-dash-panel__head">
+                <h3 class="wo-dash-panel__title">
+                    <i data-lucide="zap"></i> Quick Actions
+                </h3>
+            </div>
+            <div class="wo-quick-grid">
+                <a href="@Url.Action("Create", "Employee")" class="wo-quick-link">
+                    <i data-lucide="user-plus"></i>
+                    <span>Add Employee</span>
+                </a>
+                <a href="@Url.Action("Create", "Task")" class="wo-quick-link">
+                    <i data-lucide="plus-square"></i>
+                    <span>Create Task</span>
+                </a>
+                <a href="@Url.Action("Index", "Attendance")" class="wo-quick-link">
+                    <i data-lucide="clock"></i>
+                    <span>Attendance</span>
+                </a>
+                <a href="@Url.Action("Index", "Leave")" class="wo-quick-link">
+                    <i data-lucide="calendar-days"></i>
+                    <span>Leaves</span>
+                </a>
+                <a href="@Url.Action("Index", "Report")" class="wo-quick-link">
+                    <i data-lucide="file-bar-chart"></i>
+                    <span>Reports</span>
+                </a>
+                <a href="@Url.Action("Settings", "Admin")" class="wo-quick-link">
+                    <i data-lucide="settings"></i>
+                    <span>Settings</span>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+<style>
+    .wo-spin { animation: wo-spin 0.8s linear infinite; }
+</style>
+<script>
+    (function () {
+        var CHART_COLORS = {
+            primary: '#2563eb',
+            secondary: '#7c3aed',
+            success: '#10b981',
+            warning: '#f59e0b',
+            danger: '#ef4444',
+            palette: ['#2563eb', '#7c3aed', '#10b981', '#06b6d4', '#f59e0b', '#64748b'],
+            primaryAlpha: 'rgba(37, 99, 235, 0.12)'
+        };
+
+        var chartInstances = [];
+
+        $(document).ready(function () {
+            loadDashboardData();
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        });
+
+        function loadDashboardData() {
+            if (window.showLoading) window.showLoading();
+            $.ajax({
+                url: '@Url.Action("GetDashboardData", "Admin")',
+                type: 'GET',
+                success: function (response) {
+                    if (response.success) {
+                        updateStats(response.data);
+                        renderCharts(response.data);
+                        renderActivities(response.activities);
+                    }
+                },
+                error: function () {
+                    $('#recentActivities').html(
+                        '<li class="wo-timeline__item"><div class="wo-timeline__content">' +
+                        '<p class="wo-timeline__text text-danger">Failed to load dashboard data.</p></div></li>'
+                    );
+                },
+                complete: function () {
+                    if (window.hideLoading) window.hideLoading();
+                    if (typeof lucide !== 'undefined') lucide.createIcons();
+                }
+            });
+        }
+
+        function updateStats(data) {
+            $('#totalEmployees').text(data.totalEmployees || 0);
+            $('#activeEmployees').text(data.activeEmployees || 0);
+            $('#totalDepartments').text(data.totalDepartments || 0);
+            $('#totalTasks').text(data.totalTasks || 0);
+            $('#pendingTasks').text(data.pendingTasks || 0);
+            $('#pendingLeaves').text(data.pendingLeaves || 0);
+            $('#welcomeTotal').text(data.totalEmployees || 0);
+            $('#welcomeActive').text(data.activeEmployees || 0);
+            $('#welcomeDepts').text(data.totalDepartments || 0);
+        }
+
+        function destroyCharts() {
+            chartInstances.forEach(function (c) { if (c) c.destroy(); });
+            chartInstances = [];
+        }
+
+        function renderCharts(data) {
+            destroyCharts();
+
+            var defaultFont = { family: 'Inter', size: 12 };
+
+            chartInstances.push(new Chart(document.getElementById('deptChart').getContext('2d'), {
+                type: 'doughnut',
+                data: {
+                    labels: data.departmentNames || [],
+                    datasets: [{
+                        data: data.departmentCounts || [],
+                        backgroundColor: CHART_COLORS.palette,
+                        borderWidth: 0,
+                        hoverOffset: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '62%',
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { padding: 16, usePointStyle: true, font: defaultFont }
+                        }
+                    }
+                }
+            }));
+
+            chartInstances.push(new Chart(document.getElementById('attendanceTrendChart').getContext('2d'), {
+                type: 'line',
+                data: {
+                    labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+                    datasets: [{
+                        label: 'Attendance %',
+                        data: data.attendanceTrend || [0, 0, 0, 0],
+                        borderColor: CHART_COLORS.primary,
+                        backgroundColor: CHART_COLORS.primaryAlpha,
+                        fill: true,
+                        tension: 0.35,
+                        pointRadius: 4,
+                        pointBackgroundColor: CHART_COLORS.primary,
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            grid: { color: '#f1f5f9' },
+                            ticks: { font: defaultFont, callback: function (v) { return v + '%'; } }
+                        },
+                        x: { grid: { display: false }, ticks: { font: defaultFont } }
+                    }
+                }
+            }));
+
+            var statusColors = ['#94a3b8', CHART_COLORS.primary, '#06b6d4', CHART_COLORS.secondary, CHART_COLORS.success];
+            chartInstances.push(new Chart(document.getElementById('taskStatusChart').getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: ['Pending', 'In Progress', 'Submitted', 'Approved', 'Completed'],
+                    datasets: [{
+                        label: 'Tasks',
+                        data: data.taskStatusCounts || [0, 0, 0, 0, 0],
+                        backgroundColor: statusColors,
+                        borderRadius: 8,
+                        borderSkipped: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true, grid: { color: '#f1f5f9' }, ticks: { font: defaultFont, stepSize: 1 } },
+                        x: { grid: { display: false }, ticks: { font: defaultFont } }
+                    }
+                }
+            }));
+
+            chartInstances.push(new Chart(document.getElementById('leaveStatusChart').getContext('2d'), {
+                type: 'doughnut',
+                data: {
+                    labels: ['Approved', 'Pending', 'Rejected'],
+                    datasets: [{
+                        data: data.leaveStatusCounts || [0, 0, 0],
+                        backgroundColor: [CHART_COLORS.success, CHART_COLORS.warning, CHART_COLORS.danger],
+                        borderWidth: 0,
+                        hoverOffset: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '58%',
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { padding: 16, usePointStyle: true, font: defaultFont }
+                        }
+                    }
+                }
+            }));
+        }
+
+        function renderActivities(activities) {
+            var $list = $('#recentActivities');
+            if (!activities || activities.length === 0) {
+                $list.html(
+                    '<li class="wo-timeline__item">' +
+                    '<div class="wo-timeline__avatar wo-timeline__avatar--default"><i data-lucide="inbox"></i></div>' +
+                    '<div class="wo-timeline__content">' +
+                    '<p class="wo-timeline__text">No recent activities</p>' +
+                    '<span class="wo-timeline__time">Check back later</span></div></li>'
+                );
+                if (typeof lucide !== 'undefined') lucide.createIcons();
+                return;
+            }
+
+            var html = '';
+            for (var i = 0; i < activities.length; i++) {
+                var act = activities[i];
+                var meta = getActivityMeta(act.type);
+                html += '<li class="wo-timeline__item">' +
+                    '<div class="wo-timeline__avatar wo-timeline__avatar--' + meta.css + '">' +
+                    '<i data-lucide="' + meta.icon + '"></i></div>' +
+                    '<div class="wo-timeline__content">' +
+                    '<p class="wo-timeline__text">' + escapeHtml(act.message) + '</p>' +
+                    '<span class="wo-timeline__time">' + escapeHtml(act.time) + '</span>' +
+                    '</div></li>';
+            }
+            $list.html(html);
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        function getActivityMeta(type) {
+            switch (type) {
+                case 'employee': return { css: 'employee', icon: 'user-plus' };
+                case 'task': return { css: 'task', icon: 'check-square' };
+                case 'leave': return { css: 'leave', icon: 'calendar-days' };
+                case 'attendance': return { css: 'attendance', icon: 'clock' };
+                default: return { css: 'default', icon: 'bell' };
+            }
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            var div = document.createElement('div');
+            div.appendChild(document.createTextNode(text));
+            return div.innerHTML;
+        }
+    })();
+</script>
+}

@@ -1,0 +1,77 @@
+/* Admin reports hub */
+
+.report-hub-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 16px;
+}
+
+.report-hub-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 18px 20px;
+    background: var(--wo-surface);
+    border: 1px solid var(--wo-border);
+    border-radius: var(--wo-radius-lg);
+    text-decoration: none;
+    color: inherit;
+    transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+    box-shadow: var(--wo-shadow-sm);
+}
+
+.report-hub-card:hover {
+    border-color: var(--wo-primary);
+    box-shadow: var(--wo-shadow-md);
+    transform: translateY(-2px);
+    color: inherit;
+}
+
+.report-hub-card__icon {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--wo-radius-lg);
+    background: var(--wo-primary-light);
+    color: var(--wo-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.report-hub-card__icon svg {
+    width: 24px;
+    height: 24px;
+}
+
+.report-hub-card strong {
+    display: block;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--wo-text);
+    margin-bottom: 4px;
+}
+
+.report-hub-card p {
+    margin: 0;
+    font-size: 13px;
+    color: var(--wo-text-secondary);
+    line-height: 1.4;
+}
+
+.report-hub-card__arrow {
+    margin-left: auto;
+    color: var(--wo-text-muted);
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+}
+
+.report-table-foot td {
+    background: #f8fafc;
+    font-weight: 600;
+}
+
+[data-theme="dark"] .report-table-foot td {
+    background: #0f172a;
+}

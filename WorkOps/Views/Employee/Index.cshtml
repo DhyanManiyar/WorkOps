@@ -1,0 +1,643 @@
+﻿@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewBag.Title = "Employee Management";
+}
+
+<link href="@Url.Content("~/Content/css/pages/admin-modules.css")" rel="stylesheet" />
+
+@section TopBarActions {
+    <button type="button" id="exportBtn" class="btn-topbar-secondary">
+        <i data-lucide="download" style="width:16px;height:16px;"></i> Export
+    </button>
+    <a href="@Url.Action("Create", "Employee")" class="btn-topbar-primary">
+        <i data-lucide="user-plus" style="width:16px;height:16px;"></i> Add Employee
+    </a>
+}
+
+<div class="wo-page animate-fade-up">
+    <div class="stats-grid stats-grid--employee">
+        <div class="stat-card-premium wo-stat-card">
+            <div class="stat-left">
+                <div class="stat-number" id="totalCount">0</div>
+                <div class="stat-label">Total Employees</div>
+            </div>
+            <div class="stat-icon"><i data-lucide="users"></i></div>
+        </div>
+        <div class="stat-card-premium wo-stat-card">
+            <div class="stat-left">
+                <div class="stat-number" id="activeCount">0</div>
+                <div class="stat-label">Active Employees</div>
+            </div>
+            <div class="stat-icon"><i data-lucide="user-check"></i></div>
+        </div>
+        <div class="stat-card-premium wo-stat-card">
+            <div class="stat-left">
+                <div class="stat-number" id="deptCount">0</div>
+                <div class="stat-label">Departments</div>
+            </div>
+            <div class="stat-icon"><i data-lucide="building-2"></i></div>
+        </div>
+        <div class="stat-card-premium wo-stat-card">
+            <div class="stat-left">
+                <div class="stat-number" id="inactiveCount">0</div>
+                <div class="stat-label">Inactive</div>
+            </div>
+            <div class="stat-icon"><i data-lucide="user-x"></i></div>
+        </div>
+        <div class="stat-card-premium wo-stat-card stat-accent-danger">
+            <div class="stat-left">
+                <div class="stat-number" id="lockedCount">0</div>
+                <div class="stat-label">Locked</div>
+            </div>
+            <div class="stat-icon"><i data-lucide="lock"></i></div>
+        </div>
+    </div>
+
+    <div class="wo-account-tabs" role="tablist" aria-label="Account filters">
+        <button type="button" class="wo-account-tab is-active" data-account-filter="all">All employees</button>
+        <button type="button" class="wo-account-tab" data-account-filter="inactive">
+            <i data-lucide="user-x" style="width:14px;height:14px;"></i> Pending activation
+            <span class="wo-account-tab__badge" id="inactiveTabBadge">0</span>
+        </button>
+        <button type="button" class="wo-account-tab" data-account-filter="locked">
+            <i data-lucide="lock" style="width:14px;height:14px;"></i> Locked accounts
+            <span class="wo-account-tab__badge" id="lockedTabBadge">0</span>
+        </button>
+    </div>
+
+    <div class="filter-bar-premium">
+        <div class="filter-grid">
+            <div class="filter-group">
+                <label>Search</label>
+                <input type="text" id="searchInput" class="filter-input" placeholder="Name or email…">
+            </div>
+            <div class="filter-group">
+                <label>Department</label>
+                <select id="deptFilter" class="filter-input">
+                    <option value="">All Departments</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Role</label>
+                <select id="roleFilter" class="filter-input">
+                    <option value="">All Roles</option>
+                    <option value="Admin">Admin</option>
+                    <option value="Manager">Manager</option>
+                    <option value="Employee">Employee</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Status</label>
+                <select id="statusFilter" class="filter-input">
+                    <option value="">All Status</option>
+                    <option value="true">Active</option>
+                    <option value="false">Inactive</option>
+                </select>
+            </div>
+            <div class="filter-group filter-buttons">
+                <label>&nbsp;</label>
+                <div class="button-group-horizontal">
+                    <button type="button" class="btn-apply" id="applyFilters">
+                        <i data-lucide="search" style="width:14px;height:14px;"></i> Apply
+                    </button>
+                    <button type="button" class="btn-reset" id="resetFilters">
+                        <i data-lucide="rotate-ccw" style="width:14px;height:14px;"></i> Reset
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="data-table-container-premium">
+        <table class="employee-table" id="employeeTable">
+            <thead>
+                <tr>
+                    <th>Employee</th>
+                    <th>Contact</th>
+                    <th class="col-dept">Department</th>
+                    <th>Position</th>
+                    <th>Role</th>
+                    <th>Status</th>
+                    <th class="col-actions">Actions</th>
+                </tr>
+            </thead>
+            <tbody id="employeeTableBody">
+                <tr>
+                    <td colspan="7" class="text-center py-5 text-muted">
+                        <i class="fas fa-spinner fa-spin me-2"></i> Loading employees…
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="pagination-premium" id="pagination"></div>
+    </div>
+</div>
+
+<div class="modal fade wo-password-modal" id="tempPasswordModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title">Temporary password</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p class="text-muted small mb-3">Share this password securely with the employee. They should change it after signing in.</p>
+                <div class="wo-password-copy">
+                    <input type="text" class="form-control" id="tempPasswordValue" readonly />
+                    <button type="button" class="btn btn-primary" id="copyTempPasswordBtn">
+                        <i data-lucide="copy" style="width:16px;height:16px;"></i> Copy
+                    </button>
+                </div>
+                <div class="small text-success mt-2 d-none" id="copyPasswordSuccess">Copied to clipboard.</div>
+            </div>
+            <div class="modal-footer border-0 pt-0">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Done</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1100;">
+    <div id="successToast" class="toast" data-bs-autohide="true" data-bs-delay="3000">
+        <div class="toast-header bg-success text-white">
+            <i class="fas fa-check-circle me-2"></i>
+            <strong class="me-auto">Success</strong>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
+        </div>
+        <div class="toast-body" id="toastMessage"></div>
+    </div>
+</div>
+
+@section scripts {
+    <script>
+        let allEmployees = [];
+        let currentPage = 1;
+        const rowsPerPage = 10;
+        let currentFilter = { search: '', dept: '', role: '', status: '', account: 'all' };
+        let tempPasswordModal = null;
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            return String(text)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
+        }
+
+        function formatDepartment(name) {
+            if (!name || name === '-') return '<span class="dept-tag">-</span>';
+            var safe = escapeHtml(name);
+            return '<span class="dept-tag" title="' + safe + '">' + safe + '</span>';
+        }
+
+        $(document).ready(function() {
+            loadDepartments();
+            loadEmployees();
+
+            $('#applyFilters').click(function() {
+                currentPage = 1;
+                applyFiltersAndRender();
+            });
+
+            $('#resetFilters').click(function() {
+                $('#searchInput').val('');
+                $('#deptFilter').val('');
+                $('#roleFilter').val('');
+                $('#statusFilter').val('');
+                currentFilter.account = 'all';
+                $('.wo-account-tab').removeClass('is-active');
+                $('.wo-account-tab[data-account-filter="all"]').addClass('is-active');
+                currentPage = 1;
+                applyFiltersAndRender();
+                showToast('Filters reset', true);
+            });
+
+            $('#exportBtn').click(function() {
+                exportToCSV();
+            });
+
+            $('.wo-account-tab').on('click', function() {
+                $('.wo-account-tab').removeClass('is-active');
+                $(this).addClass('is-active');
+                currentFilter.account = $(this).data('account-filter') || 'all';
+                if (currentFilter.account === 'inactive') {
+                    $('#statusFilter').val('false');
+                } else if (currentFilter.account === 'locked') {
+                    $('#statusFilter').val('');
+                } else if (currentFilter.account === 'all') {
+                    $('#statusFilter').val('');
+                }
+                currentPage = 1;
+                applyFiltersAndRender();
+            });
+
+            $('#copyTempPasswordBtn').on('click', function() {
+                var value = $('#tempPasswordValue').val();
+                if (!value) return;
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(value).then(function() {
+                        $('#copyPasswordSuccess').removeClass('d-none');
+                    });
+                } else {
+                    $('#tempPasswordValue').select();
+                    document.execCommand('copy');
+                    $('#copyPasswordSuccess').removeClass('d-none');
+                }
+            });
+
+            var modalEl = document.getElementById('tempPasswordModal');
+            if (modalEl) tempPasswordModal = new bootstrap.Modal(modalEl);
+
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        });
+
+        function loadDepartments() {
+            $.ajax({
+                url: '@Url.Action("GetDepartments", "Employee")',
+                type: 'GET',
+                success: function(response) {
+                    var deptSelect = $('#deptFilter');
+                    deptSelect.html('<option value="">All Departments</option>');
+                    if (response.data) {
+                        for (var i = 0; i < response.data.length; i++) {
+                            deptSelect.append('<option value="' + response.data[i] + '">' + response.data[i] + '</option>');
+                        }
+                    }
+                }
+            });
+        }
+
+        function loadEmployees() {
+            $.ajax({
+                url: '@Url.Action("GetEmployees", "Employee")',
+                type: 'GET',
+                success: function(response) {
+                    allEmployees = response.data || [];
+                    updateStats();
+                    applyFiltersAndRender();
+                },
+                error: function() {
+                    showToast('Error loading employees', false);
+                }
+            });
+        }
+
+        function updateStats() {
+            var total = allEmployees.length;
+            var active = allEmployees.filter(function(e) { return e.IsActive && !e.IsLocked; }).length;
+            var inactive = allEmployees.filter(function(e) { return !e.IsActive; }).length;
+            var locked = allEmployees.filter(function(e) { return e.IsLocked; }).length;
+            var departments = [...new Set(allEmployees.map(e => e.Department))].length;
+
+            $('#totalCount').text(total);
+            $('#activeCount').text(active);
+            $('#inactiveCount').text(inactive);
+            $('#lockedCount').text(locked);
+            $('#deptCount').text(departments);
+            $('#inactiveTabBadge').text(inactive);
+            $('#lockedTabBadge').text(locked);
+        }
+
+        function applyFiltersAndRender() {
+            var searchTerm = $('#searchInput').val().toLowerCase();
+            var deptFilter = $('#deptFilter').val();
+            var roleFilter = $('#roleFilter').val();
+            var statusFilter = $('#statusFilter').val();
+            var accountFilter = currentFilter.account || 'all';
+
+            currentFilter = {
+                search: searchTerm,
+                dept: deptFilter,
+                role: roleFilter,
+                status: statusFilter,
+                account: accountFilter
+            };
+
+            var filtered = allEmployees.filter(function(emp) {
+                var matchSearch = !searchTerm ||
+                    emp.FullName.toLowerCase().includes(searchTerm) ||
+                    emp.Email.toLowerCase().includes(searchTerm);
+                var matchDept = !deptFilter || emp.Department === deptFilter;
+                var matchRole = !roleFilter || emp.Role === roleFilter;
+                var matchStatus = !statusFilter || emp.IsActive.toString() === statusFilter;
+                var matchAccount = accountFilter === 'all' ||
+                    (accountFilter === 'inactive' && !emp.IsActive) ||
+                    (accountFilter === 'locked' && emp.IsLocked);
+                return matchSearch && matchDept && matchRole && matchStatus && matchAccount;
+            });
+
+            renderTable(filtered);
+            renderPagination(filtered.length);
+        }
+
+        function renderTable(employees) {
+            var start = (currentPage - 1) * rowsPerPage;
+            var end = start + rowsPerPage;
+            var pageData = employees.slice(start, end);
+
+            if (pageData.length === 0) {
+                $('#employeeTableBody').html('<tr><td colspan="7" class="text-center py-5 text-muted"><i class="fas fa-users fa-2x mb-2 d-block opacity-50"></i>No employees found</td></tr>');
+                return;
+            }
+
+            var html = '';
+            for (var i = 0; i < pageData.length; i++) {
+                var emp = pageData[i];
+                var statusClass = emp.IsLocked ? 'locked' : (emp.IsActive ? 'active' : 'inactive');
+                var statusText = emp.IsLocked ? 'Locked' : (emp.IsActive ? 'Active' : 'Inactive');
+                var roleClass = emp.Role === 'Admin' ? 'role-admin' : (emp.Role === 'Manager' ? 'role-manager' : 'role-employee');
+
+                var unlockBtn = emp.IsLocked
+                    ? '<button type="button" onclick="unlockAccount(' + emp.EmployeeID + ')" class="action-btn unlock" title="Unlock account"><i class="fas fa-unlock"></i></button>'
+                    : '';
+                var activateBtn = (!emp.IsActive && !emp.IsLocked)
+                    ? '<button type="button" onclick="activateAccount(' + emp.EmployeeID + ')" class="action-btn activate" title="Activate account"><i class="fas fa-user-check"></i></button>'
+                    : '';
+
+                html += '<tr>' +
+                    '<td>' +
+                        '<div class="employee-info">' +
+                            '<div class="employee-avatar-premium">' + (emp.Initials || 'U') + '</div>' +
+                            '<div>' +
+                                '<div class="employee-name">' + (emp.FullName || '-') + '</div>' +
+                                '<div class="employee-id">EMP' + emp.EmployeeID + '</div>' +
+                            '</div>' +
+                        '</div>' +
+                    '</td>' +
+                    '<td>' +
+                        '<div class="contact-email"><i class="fas fa-envelope"></i> ' + (emp.Email || '-') + '</div>' +
+                        '<div class="contact-phone"><i class="fas fa-phone"></i> ' + (emp.Phone || '-') + '</div>' +
+                    '</td>' +
+                    '<td class="col-dept">' + formatDepartment(emp.Department) + '</td>' +
+                    '<td class="position-text">' + (emp.Position || '-') + '</td>' +
+                    '<td><span class="role-badge ' + roleClass + '">' + emp.Role + '</span></td>' +
+                    '<td>' +
+                        '<span class="status-badge status-' + statusClass + '">' +
+                            '<span class="status-dot ' + statusClass + '"></span>' + statusText +
+                        '</span>' +
+                    '</td>' +
+                    '<td class="col-actions">' +
+                        '<div class="action-group">' +
+                            '<a href="@Url.Action("Details", "Employee")/' + emp.EmployeeID + '" class="action-btn view" title="View"><i class="fas fa-eye"></i></a>' +
+                            '<a href="@Url.Action("Edit", "Employee")/' + emp.EmployeeID + '" class="action-btn edit" title="Edit"><i class="fas fa-edit"></i></a>' +
+                            activateBtn +
+                            unlockBtn +
+                            '<button type="button" onclick="toggleStatus(' + emp.EmployeeID + ', ' + emp.IsActive + ')" class="action-btn toggle" title="' + (emp.IsActive ? 'Deactivate' : 'Activate') + '"><i class="fas ' + (emp.IsActive ? 'fa-ban' : 'fa-check') + '"></i></button>' +
+                            '<button type="button" onclick="resetPassword(' + emp.EmployeeID + ')" class="action-btn reset" title="Reset Password"><i class="fas fa-key"></i></button>' +
+                            '<button type="button" onclick="deleteEmployee(' + emp.EmployeeID + ')" class="action-btn delete" title="Delete"><i class="fas fa-trash"></i></button>' +
+                        '</div>' +
+                    '</td>' +
+                '</tr>';
+            }
+
+            $('#employeeTableBody').html(html);
+        }
+
+        function renderPagination(totalRows) {
+            var totalPages = Math.ceil(totalRows / rowsPerPage);
+            if (totalPages <= 1) {
+                $('#pagination').empty();
+                return;
+            }
+
+            var html = '<button type="button" class="page-btn" onclick="changePage(' + (currentPage - 1) + ')" ' + (currentPage === 1 ? 'disabled' : '') + '><i class="fas fa-chevron-left"></i></button>';
+
+            var startPage = Math.max(1, currentPage - 2);
+            var endPage = Math.min(totalPages, startPage + 4);
+            if (endPage - startPage < 4) startPage = Math.max(1, endPage - 4);
+
+            for (var i = startPage; i <= endPage; i++) {
+                html += '<button type="button" class="page-btn ' + (i === currentPage ? 'active' : '') + '" onclick="changePage(' + i + ')">' + i + '</button>';
+            }
+
+            html += '<button type="button" class="page-btn" onclick="changePage(' + (currentPage + 1) + ')" ' + (currentPage === totalPages ? 'disabled' : '') + '><i class="fas fa-chevron-right"></i></button>';
+
+            $('#pagination').html(html);
+        }
+
+        function changePage(page) {
+            currentPage = page;
+            applyFiltersAndRender();
+        }
+
+        function showToast(message, isSuccess = true) {
+            var toast = new bootstrap.Toast(document.getElementById('successToast'));
+            $('#toastMessage').text(message);
+            if (!isSuccess) {
+                $('.toast-header').removeClass('bg-success').addClass('bg-danger');
+                $('.toast-header i').removeClass('fa-check-circle').addClass('fa-exclamation-circle');
+            } else {
+                $('.toast-header').removeClass('bg-danger').addClass('bg-success');
+                $('.toast-header i').removeClass('fa-exclamation-circle').addClass('fa-check-circle');
+            }
+            toast.show();
+        }
+
+        function toggleStatus(id, currentStatus) {
+            var action = currentStatus ? 'deactivate' : 'activate';
+            woConfirm({
+                title: 'Update employee status',
+                message: 'Are you sure you want to ' + action + ' this employee?',
+                variant: 'primary',
+                confirmText: 'Yes, continue',
+                onConfirm: function () {
+                    $.ajax({
+                        url: '@Url.Action("ToggleStatus", "Employee")',
+                        type: 'POST',
+                        data: { id: id },
+                        success: function(response) {
+                            if (response.success) {
+                                showToast(response.message);
+                                loadEmployees();
+                            } else {
+                                showToast(response.message, false);
+                            }
+                        },
+                        error: function() {
+                            showToast('Error toggling status', false);
+                        }
+                    });
+                }
+            });
+        }
+
+        function showTempPasswordModal(password) {
+            $('#tempPasswordValue').val(password);
+            $('#copyPasswordSuccess').addClass('d-none');
+            if (tempPasswordModal) {
+                tempPasswordModal.show();
+            }
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        function resetPassword(id) {
+            woConfirm({
+                title: 'Reset password',
+                message: 'Reset password for this employee? A new random password will be generated.',
+                variant: 'primary',
+                confirmText: 'Reset password',
+                onConfirm: function () {
+                    $.ajax({
+                        url: '@Url.Action("ResetPassword", "Employee")',
+                        type: 'POST',
+                        data: { id: id },
+                        success: function(response) {
+                            if (response.success) {
+                                showToast(response.message || 'Password reset successful');
+                                if (response.newPassword) {
+                                    showTempPasswordModal(response.newPassword);
+                                }
+                            } else {
+                                showToast(response.message, false);
+                            }
+                        },
+                        error: function() {
+                            showToast('Error resetting password', false);
+                        }
+                    });
+                }
+            });
+        }
+
+        function unlockAccount(id) {
+            woConfirm({
+                title: 'Unlock account',
+                message: 'Unlock this user account? They will be able to sign in again.',
+                variant: 'primary',
+                confirmText: 'Unlock',
+                onConfirm: function () {
+                    $.ajax({
+                        url: '@Url.Action("UnlockAccount", "Employee")',
+                        type: 'POST',
+                        data: { id: id },
+                        success: function(response) {
+                            if (response.success) {
+                                showToast(response.message);
+                                loadEmployees();
+                            } else {
+                                showToast(response.message, false);
+                            }
+                        },
+                        error: function() {
+                            showToast('Error unlocking account', false);
+                        }
+                    });
+                }
+            });
+        }
+
+        function activateAccount(id) {
+            woConfirm({
+                title: 'Activate account',
+                message: 'Activate this employee account? They will be able to sign in after activation.',
+                variant: 'success',
+                confirmText: 'Activate',
+                onConfirm: function () {
+                    $.ajax({
+                        url: '@Url.Action("ActivateAccount", "Employee")',
+                        type: 'POST',
+                        data: { id: id },
+                        success: function(response) {
+                            if (response.success) {
+                                showToast(response.message);
+                                loadEmployees();
+                            } else {
+                                showToast(response.message, false);
+                            }
+                        },
+                        error: function() {
+                            showToast('Error activating account', false);
+                        }
+                    });
+                }
+            });
+        }
+
+        function deleteEmployee(id) {
+            woConfirm({
+                title: 'Deactivate employee',
+                message: 'Deactivate this employee? They will no longer be able to login.',
+                variant: 'danger',
+                confirmText: 'Deactivate',
+                onConfirm: function () {
+                    $.ajax({
+                        url: '@Url.Action("Delete", "Employee")',
+                        type: 'POST',
+                        data: { id: id },
+                        success: function(response) {
+                            if (response.success) {
+                                showToast(response.message);
+                                loadEmployees();
+                            } else {
+                                showToast(response.message, false);
+                            }
+                        },
+                        error: function() {
+                            showToast('Error deactivating employee', false);
+                        }
+                    });
+                }
+            });
+        }
+
+        function exportToCSV() {
+            if (window.showLoading) window.showLoading();
+
+            var searchTerm = currentFilter.search;
+            var deptFilter = currentFilter.dept;
+            var roleFilter = currentFilter.role;
+            var statusFilter = currentFilter.status;
+
+            var filteredData = allEmployees.filter(function(emp) {
+                var matchSearch = !searchTerm ||
+                    emp.FullName.toLowerCase().includes(searchTerm) ||
+                    emp.Email.toLowerCase().includes(searchTerm);
+                var matchDept = !deptFilter || emp.Department === deptFilter;
+                var matchRole = !roleFilter || emp.Role === roleFilter;
+                var matchStatus = !statusFilter || emp.IsActive.toString() === statusFilter;
+                return matchSearch && matchDept && matchRole && matchStatus;
+            });
+
+            if (filteredData.length === 0) {
+                if (window.hideLoading) window.hideLoading();
+                showToast('No data to export', false);
+                return;
+            }
+
+            var headers = ['Employee ID', 'Name', 'Email', 'Phone', 'Department', 'Position', 'Manager', 'Joining Date', 'Role', 'Status'];
+            var csvRows = [headers.join(',')];
+
+            for (var i = 0; i < filteredData.length; i++) {
+                var emp = filteredData[i];
+                var row = [
+                    'EMP' + emp.EmployeeID,
+                    '"' + (emp.FullName || '').replace(/"/g, '""') + '"',
+                    '"' + (emp.Email || '').replace(/"/g, '""') + '"',
+                    '"' + (emp.Phone || '').replace(/"/g, '""') + '"',
+                    '"' + (emp.Department || '').replace(/"/g, '""') + '"',
+                    '"' + (emp.Position || '').replace(/"/g, '""') + '"',
+                    '"' + (emp.Manager || '').replace(/"/g, '""') + '"',
+                    emp.JoiningDate ? new Date(emp.JoiningDate).toLocaleDateString('en-GB') : '',
+                    emp.Role,
+                    emp.IsActive ? 'Active' : 'Inactive'
+                ];
+                csvRows.push(row.join(','));
+            }
+
+            var csvContent = csvRows.join('\n');
+            var blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            var link = document.createElement('a');
+            var url = URL.createObjectURL(blob);
+            link.href = url;
+            link.setAttribute('download', 'employees_export.csv');
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+
+            if (window.hideLoading) window.hideLoading();
+            showToast('Exported ' + filteredData.length + ' employees');
+        }
+    </script>
+}

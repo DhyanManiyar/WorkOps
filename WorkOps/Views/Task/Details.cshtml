@@ -1,0 +1,354 @@
+﻿@model WorkOps.Models.TaskDetailsViewModel
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewBag.Title = "Task Details";
+}
+
+<link href="@Url.Content("~/Content/css/pages/admin-modules.css")" rel="stylesheet" />
+<link href="@Url.Content("~/Content/css/pages/admin-tasks.css")" rel="stylesheet" />
+
+@section TopBarActions {
+    <a href="@Url.Action("Index", "Task")" class="btn-topbar-secondary">
+        <i data-lucide="arrow-left" style="width:16px;height:16px;"></i> Back
+    </a>
+    <a href="@Url.Action("Edit", "Task", new { id = Model.TaskID })" class="btn-topbar-primary">
+        <i data-lucide="pencil" style="width:16px;height:16px;"></i> Edit Task
+    </a>
+}
+
+<div class="wo-page animate-fade-up">
+    <div class="wo-page-header">
+        <div>
+            <h2>Task Details</h2>
+            <p>@Model.TaskCode</p>
+        </div>
+    </div>
+
+    <div class="wo-details-grid">
+    <div class="detail-card wo-detail-card">
+        <h5 class="wo-detail-card__title">
+            <i data-lucide="info" style="width:18px;height:18px;"></i> Task Information
+        </h5>
+
+        <div class="info-row">
+            <div class="info-label">Task Code:</div>
+            <div class="info-value"><strong>@Model.TaskCode</strong></div>
+        </div>
+        <div class="info-row">
+            <div class="info-label">Title:</div>
+            <div class="info-value">@Model.Title</div>
+        </div>
+        <div class="info-row">
+            <div class="info-label">Description:</div>
+            <div class="info-value">@(string.IsNullOrEmpty(Model.Description) ? "No description" : Model.Description)</div>
+        </div>
+        <div class="info-row">
+            <div class="info-label">Priority:</div>
+            <div class="info-value">
+                <span class="@(Model.Priority == 1 ? "priority-low" : Model.Priority == 2 ? "priority-medium" : Model.Priority == 3 ? "priority-high" : "priority-critical")">
+                    @Model.PriorityText
+                </span>
+            </div>
+        </div>
+        <div class="info-row">
+            <div class="info-label">Status:</div>
+            <div class="info-value">
+                <span class="@(Model.Status == 1 ? "status-pending" : Model.Status == 2 ? "status-progress" : Model.Status == 3 ? "status-submitted" : Model.Status == 4 ? "status-approved" : "status-completed")">
+                    @Model.StatusText
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <div class="detail-card wo-detail-card">
+        <h5 class="wo-detail-card__title">
+            <i data-lucide="user-check" style="width:18px;height:18px;"></i> Assignment
+        </h5>
+
+        <div class="info-row">
+            <div class="info-label">Assigned To:</div>
+            <div class="info-value">
+                <div class="d-flex align-items-center">
+                    <div class="avatar-sm me-2">@Model.AssignedToAvatar</div>
+                    @Model.AssignedTo
+                </div>
+            </div>
+        </div>
+        <div class="info-row">
+            <div class="info-label">Assigned By:</div>
+            <div class="info-value">@Model.AssignedBy</div>
+        </div>
+        <div class="info-row">
+            <div class="info-label">Department:</div>
+            <div class="info-value">@Model.Department</div>
+        </div>
+    </div>
+
+    <div class="detail-card wo-detail-card">
+        <h5 class="wo-detail-card__title">
+            <i data-lucide="calendar" style="width:18px;height:18px;"></i> Dates
+        </h5>
+
+        <div class="info-row">
+            <div class="info-label">Start Date:</div>
+            <div class="info-value">@(Model.StartDate?.ToString("dd MMM yyyy") ?? "Not set")</div>
+        </div>
+        <div class="info-row">
+            <div class="info-label">Due Date:</div>
+            <div class="info-value">
+                @Model.DueDate.ToString("dd MMM yyyy")
+                @if (Model.IsOverdue)
+                {
+                    <span class="badge bg-danger ms-2">Overdue</span>
+                }
+            </div>
+        </div>
+        <div class="info-row">
+            <div class="info-label">Completed Date:</div>
+            <div class="info-value">@(Model.CompletedDate?.ToString("dd MMM yyyy hh:mm tt") ?? "Not completed")</div>
+        </div>
+        <div class="info-row">
+            <div class="info-label">Days Remaining:</div>
+            <div class="info-value">
+                @if (Model.DaysRemaining > 0)
+                {
+                    <span>@Model.DaysRemaining days</span>
+                }
+                else if (Model.DaysRemaining == 0)
+                {
+                    <span class="text-warning">Due today</span>
+                }
+                else
+                {
+                    <span class="text-danger">Overdue by @Math.Abs(Model.DaysRemaining) days</span>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="detail-card wo-detail-card">
+        <h5 class="wo-detail-card__title">
+            <i data-lucide="hourglass" style="width:18px;height:18px;"></i> Hours
+        </h5>
+
+        <div class="info-row">
+            <div class="info-label">Estimated Hours:</div>
+            <div class="info-value">@(Model.EstimatedHours?.ToString("F1") ?? "Not set") hours</div>
+        </div>
+        <div class="info-row">
+            <div class="info-label">Actual Hours:</div>
+            <div class="info-value">@(Model.ActualHours?.ToString("F1") ?? "Not recorded") hours</div>
+        </div>
+    </div>
+
+    </div>
+
+    <div class="detail-card wo-detail-card">
+        <h5 class="wo-detail-card__title">
+            <i data-lucide="message-square" style="width:18px;height:18px;"></i> Comments
+            <span class="badge bg-secondary ms-2">@Model.Comments.Count</span>
+        </h5>
+
+        <div class="mb-3">
+            <textarea id="newComment" class="form-control" rows="3" placeholder="Add a comment..."></textarea>
+            <button class="btn btn-primary mt-2" id="addCommentBtn">
+                <i class="fas fa-paper-plane"></i> Post Comment
+            </button>
+        </div>
+
+        <div id="commentsList">
+            @foreach (var comment in Model.Comments)
+            {
+                <div class="comment-item">
+                    <div class="comment-avatar">@comment.EmployeeAvatar</div>
+                    <div class="flex-grow-1">
+                        <div class="d-flex justify-content-between">
+                            <strong>@comment.EmployeeName</strong>
+                            <small class="text-muted">@comment.CreatedDate.ToString("dd MMM yyyy, hh:mm tt")</small>
+                        </div>
+                        <p class="mb-0 mt-1">@comment.CommentText</p>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="detail-card wo-detail-card">
+        <h5 class="wo-detail-card__title">
+            <i data-lucide="paperclip" style="width:18px;height:18px;"></i> Attachments
+            <span class="badge bg-secondary ms-2">@Model.Documents.Count</span>
+        </h5>
+
+        <div class="mb-3">
+            <input type="file" id="fileUpload" class="form-control" style="display: none;">
+            <input type="text" id="docDescription" class="form-control mb-2" placeholder="Document description (optional)">
+            <button class="btn btn-primary" id="uploadBtn">
+                <i class="fas fa-upload"></i> Upload Document
+            </button>
+        </div>
+
+        <div id="documentsList">
+            @foreach (var doc in Model.Documents)
+            {
+                <div class="document-item" id="doc_@doc.DocumentID">
+                    <div>
+                        <i class="fas fa-file-alt me-2" style="color: #667eea;"></i>
+                        <strong>@doc.DocumentName</strong>
+                        <small class="text-muted ms-2">(@doc.FileSizeFormatted) - uploaded by @doc.EmployeeName on @doc.UploadDate.ToString("dd MMM yyyy")</small>
+                        @if (!string.IsNullOrEmpty(doc.Description))
+                        {
+                            <br><small class="text-muted ms-4">@doc.Description</small>
+                        }
+                    </div>
+                    <div>
+                        <a href="@Url.Action("DownloadDocument", "Task", new { id = doc.DocumentID })" class="btn btn-sm btn-info me-1" title="Download">
+                            <i class="fas fa-download"></i>
+                        </a>
+                        <button class="btn btn-sm btn-danger delete-doc" data-id="@doc.DocumentID" title="Delete">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <script>
+        // Add Comment
+        $('#addCommentBtn').click(function() {
+            var comment = $('#newComment').val();
+            if (!comment.trim()) {
+                alert('Please enter a comment');
+                return;
+            }
+
+            $.ajax({
+                url: '@Url.Action("AddComment", "Task")',
+                type: 'POST',
+                data: { taskId: @Model.TaskID, comment: comment },
+                success: function(response) {
+                    if (response.success) {
+                        var newComment = `
+                            <div class="comment-item">
+                                <div class="comment-avatar">${response.employeeAvatar}</div>
+                                <div class="flex-grow-1">
+                                    <div class="d-flex justify-content-between">
+                                        <strong>${response.employeeName}</strong>
+                                        <small class="text-muted">${response.createdDate}</small>
+                                    </div>
+                                    <p class="mb-0 mt-1">${escapeHtml(response.commentText)}</p>
+                                </div>
+                            </div>
+                        `;
+                        $('#commentsList').prepend(newComment);
+                        $('#newComment').val('');
+
+                        // Update comment count
+                        var count = $('#commentsList .comment-item').length;
+                        $('.detail-card h5 .badge').first().text(count);
+                    } else {
+                        alert(response.message || 'Error adding comment');
+                    }
+                },
+                error: function() {
+                    alert('Error adding comment');
+                }
+            });
+        });
+
+        // Upload Document
+        $('#uploadBtn').click(function() {
+            $('#fileUpload').click();
+        });
+
+        $('#fileUpload').change(function() {
+            var file = this.files[0];
+            if (!file) return;
+
+            var formData = new FormData();
+            formData.append('file', file);
+            formData.append('taskId', @Model.TaskID);
+            formData.append('description', $('#docDescription').val());
+
+            $.ajax({
+                url: '@Url.Action("UploadDocument", "Task")',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    if (response.success) {
+                        var newDoc = `
+                            <div class="document-item" id="doc_${response.documentId}">
+                                <div>
+                                    <i class="fas fa-file-alt me-2" style="color: #667eea;"></i>
+                                    <strong>${response.documentName}</strong>
+                                    <small class="text-muted ms-2">(${response.fileSize}) - uploaded by you on ${response.uploadDate}</small>
+                                    ${response.description ? `<br><small class="text-muted ms-4">${escapeHtml(response.description)}</small>` : ''}
+                                </div>
+                                <div>
+                                    <a href="@Url.Action("DownloadDocument", "Task")/${response.documentId}" class="btn btn-sm btn-info me-1"><i class="fas fa-download"></i></a>
+                                    <button class="btn btn-sm btn-danger delete-doc" data-id="${response.documentId}"><i class="fas fa-trash"></i></button>
+                                </div>
+                            </div>
+                        `;
+                        $('#documentsList').append(newDoc);
+                        $('#fileUpload').val('');
+                        $('#docDescription').val('');
+
+                        // Update document count
+                        var count = $('#documentsList .document-item').length;
+                        $('.detail-card h5 .badge').last().text(count);
+                    } else {
+                        alert(response.message || 'Error uploading document');
+                    }
+                },
+                error: function() {
+                    alert('Error uploading document');
+                }
+            });
+        });
+
+        // Delete Document
+        $(document).on('click', '.delete-doc', function() {
+            var docId = $(this).data('id');
+            woConfirm({
+                title: 'Delete document',
+                message: 'Delete this document? This cannot be undone.',
+                variant: 'danger',
+                confirmText: 'Delete',
+                onConfirm: function () {
+                    $.ajax({
+                        url: '@Url.Action("DeleteDocument", "Task")',
+                        type: 'POST',
+                        data: { id: docId },
+                        success: function(response) {
+                            if (response.success) {
+                                $('#doc_' + docId).remove();
+                                var count = $('#documentsList .document-item').length;
+                                $('.detail-card h5 .badge').last().text(count);
+                            } else {
+                                if (window.WorkOpsUI) WorkOpsUI.showToast(response.message || 'Error deleting document', 'error');
+                            }
+                        },
+                        error: function() {
+                            if (window.WorkOpsUI) WorkOpsUI.showToast('Error deleting document', 'error');
+                        }
+                    });
+                }
+            });
+        });
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            return text.replace(/[&<>]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            });
+        }
+    </script>
+}

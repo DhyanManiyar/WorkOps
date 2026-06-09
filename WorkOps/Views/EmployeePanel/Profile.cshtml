@@ -1,0 +1,106 @@
+@model WorkOps.Models.EmployeeProfileViewModel
+@{
+    Layout = "~/Views/Shared/_EmployeeLayout.cshtml";
+    ViewBag.Title = "My Profile";
+}
+
+<div class="wo-page">
+    <div class="wo-page-header">
+        <div>
+            <h2>My profile</h2>
+            <p>Update your contact details and password</p>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-7">
+            <div class="form-section wo-form-section">
+                <h5 class="section-title wo-form-section__title"><i data-lucide="user" style="width:18px;height:18px;"></i> Personal information</h5>
+                @using (Html.BeginForm("Profile", "EmployeePanel", FormMethod.Post))
+                {
+                    @Html.AntiForgeryToken()
+                    @Html.HiddenFor(m => m.EmployeeID)
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label text-muted small">First name</label>
+                            <input type="text" class="form-control" value="@Model.FirstName" readonly />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label text-muted small">Last name</label>
+                            <input type="text" class="form-control" value="@Model.LastName" readonly />
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label text-muted small">Email</label>
+                        <input type="text" class="form-control" value="@Model.Email" readonly />
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label text-muted small">Department</label>
+                            <input type="text" class="form-control" value="@Model.Department" readonly />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label text-muted small">Position</label>
+                            <input type="text" class="form-control" value="@Model.Position" readonly />
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label text-muted small">Manager</label>
+                        <input type="text" class="form-control" value="@(string.IsNullOrEmpty(Model.ManagerName) ? "-" : Model.ManagerName)" readonly />
+                    </div>
+
+                    <div class="mb-3">
+                        @Html.LabelFor(m => m.Phone, new { @class = "form-label fw-semibold" })
+                        @Html.TextBoxFor(m => m.Phone, new { @class = "form-control" })
+                    </div>
+
+                    <div class="mb-3">
+                        @Html.LabelFor(m => m.Address, new { @class = "form-label fw-semibold" })
+                        @Html.TextAreaFor(m => m.Address, new { @class = "form-control", rows = 2 })
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            @Html.LabelFor(m => m.EmergencyContact, new { @class = "form-label fw-semibold" })
+                            @Html.TextBoxFor(m => m.EmergencyContact, new { @class = "form-control" })
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            @Html.LabelFor(m => m.EmergencyPhone, new { @class = "form-label fw-semibold" })
+                            @Html.TextBoxFor(m => m.EmergencyPhone, new { @class = "form-control" })
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-emp-primary border-0">Save changes</button>
+                }
+            </div>
+        </div>
+
+        <div class="col-lg-5">
+            <div class="form-section wo-form-section">
+                <h5 class="section-title wo-form-section__title"><i data-lucide="lock" style="width:18px;height:18px;"></i> Change password</h5>
+                @using (Html.BeginForm("ChangePassword", "EmployeePanel", FormMethod.Post))
+                {
+                    @Html.AntiForgeryToken()
+                    <div class="mb-3">
+                        <label class="form-label">Current password</label>
+                        <input type="password" name="CurrentPassword" class="form-control" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">New password</label>
+                        <input type="password" name="NewPassword" class="form-control" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Confirm new password</label>
+                        <input type="password" name="ConfirmNewPassword" class="form-control" required />
+                    </div>
+                    <button type="submit" class="btn btn-outline-primary w-100">Update password</button>
+                }
+                <p class="small text-muted mt-3 mb-0">Password must be 8+ characters with uppercase, lowercase, number, and special character.</p>
+            </div>
+        </div>
+    </div>
+</div>

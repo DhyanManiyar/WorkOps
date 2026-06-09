@@ -1,0 +1,437 @@
+/* Task module — list, forms, kanban, details */
+
+.stat-card-small {
+    background: var(--wo-surface);
+    border: 1px solid var(--wo-border);
+    border-radius: var(--wo-radius-lg);
+    padding: 18px;
+    text-align: center;
+    box-shadow: var(--wo-shadow-sm);
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: default;
+}
+
+.stat-card-small:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--wo-shadow-md);
+}
+
+.stat-card-small h3,
+.stat-card-small .stat-number {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--wo-text);
+    margin: 8px 0 4px;
+}
+
+/* Priority badges (table + details) */
+.priority-low {
+    background: #d1fae5;
+    color: #065f46;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.priority-medium {
+    background: #dbeafe;
+    color: #1d4ed8;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.priority-high {
+    background: #ffedd5;
+    color: #c2410c;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.priority-critical {
+    background: #fee2e2;
+    color: #991b1b;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+/* Task status badges */
+.status-pending {
+    background: #f1f5f9;
+    color: #475569;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.status-progress {
+    background: #dbeafe;
+    color: #1d4ed8;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.status-submitted {
+    background: #cffafe;
+    color: #0e7490;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.status-approved {
+    background: #fef3c7;
+    color: #92400e;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.status-completed {
+    background: #d1fae5;
+    color: #065f46;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.task-row:hover { background: #f8fafc; }
+
+.btn-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--wo-radius-md);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 2px;
+    transition: transform 0.15s;
+    padding: 0;
+}
+
+.btn-icon:hover { transform: translateY(-1px); }
+
+#pagination.pagination {
+    margin: 0;
+    padding: 12px 16px;
+    justify-content: flex-end;
+    border-top: 1px solid var(--wo-border);
+    background: #fafbfc;
+}
+
+#pagination .page-link {
+    border-radius: var(--wo-radius-md);
+    font-size: 13px;
+    color: var(--wo-text-secondary);
+    border-color: var(--wo-border);
+}
+
+#pagination .page-item.active .page-link {
+    background: var(--wo-primary);
+    border-color: var(--wo-primary);
+}
+
+/* Form priority/status pickers */
+.task-picker-grid {
+    display: grid;
+    gap: 12px;
+}
+
+.task-picker-grid--priority { grid-template-columns: repeat(4, 1fr); }
+.task-picker-grid--status { grid-template-columns: repeat(5, 1fr); }
+
+@media (max-width: 992px) {
+    .task-picker-grid--priority { grid-template-columns: repeat(2, 1fr); }
+    .task-picker-grid--status { grid-template-columns: repeat(2, 1fr); }
+}
+
+.priority-badge.task-picker-option,
+.status-badge.task-picker-option {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 12px 10px;
+    border-radius: var(--wo-radius-md);
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    border: 2px solid transparent;
+    transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.priority-badge.priority-low.task-picker-option { background: #ecfdf5; color: #047857; border-color: #a7f3d0; }
+.priority-badge.priority-medium.task-picker-option { background: #eff6ff; color: #1d4ed8; border-color: #bfdbfe; }
+.priority-badge.priority-high.task-picker-option { background: #fff7ed; color: #c2410c; border-color: #fed7aa; }
+.priority-badge.priority-critical.task-picker-option { background: #fef2f2; color: #b91c1c; border-color: #fecaca; }
+
+.status-badge.status-pending.task-picker-option { background: #f8fafc; color: #475569; border-color: #e2e8f0; }
+.status-badge.status-progress.task-picker-option { background: #eff6ff; color: #1d4ed8; border-color: #bfdbfe; }
+.status-badge.status-submitted.task-picker-option { background: #ecfeff; color: #0e7490; border-color: #a5f3fc; }
+.status-badge.status-approved.task-picker-option { background: #fffbeb; color: #b45309; border-color: #fde68a; }
+.status-badge.status-completed.task-picker-option { background: #ecfdf5; color: #047857; border-color: #a7f3d0; }
+
+.priority-selected,
+.status-badge.priority-selected {
+    transform: translateY(-2px);
+    box-shadow: var(--wo-shadow-md);
+    border-color: var(--wo-primary) !important;
+}
+
+/* Kanban */
+.kanban-board-row {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    padding-bottom: 8px;
+}
+
+.kanban-column {
+    flex: 1;
+    min-width: 220px;
+    background: #f1f5f9;
+    border: none;
+    border-radius: 12px;
+    padding: 16px 12px;
+    min-height: 520px;
+}
+
+.kanban-header {
+    font-weight: 600;
+    font-size: 14px;
+    padding-bottom: 12px;
+    margin-bottom: 14px;
+    border-bottom: 2px solid var(--wo-primary);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: var(--wo-text);
+    gap: 8px;
+}
+
+.kanban-header .badge {
+    min-width: 26px;
+    height: 26px;
+    padding: 0 8px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.kanban-empty {
+    text-align: center;
+    color: var(--wo-text-muted);
+    padding: 28px 12px;
+}
+
+.kanban-card {
+    background: #fff;
+    border-radius: 10px;
+    padding: 14px 14px 12px;
+    margin-bottom: 12px;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
+    cursor: grab;
+    transition: transform 0.2s, box-shadow 0.2s;
+    border: none;
+    border-left: 4px solid;
+}
+
+.kanban-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(15, 23, 42, 0.12);
+}
+
+.kanban-card:active { cursor: grabbing; }
+
+.kanban-card__title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--wo-text);
+    line-height: 1.35;
+    margin-bottom: 4px;
+}
+
+.kanban-card__code {
+    font-size: 12px;
+    color: var(--wo-text-muted);
+    margin-bottom: 12px;
+}
+
+.kanban-card__footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.kanban-priority-pill {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 999px;
+    color: #fff;
+    line-height: 1.2;
+    flex-shrink: 0;
+}
+
+.kanban-priority-pill--low { background: #22c55e; }
+.kanban-priority-pill--medium { background: #3b82f6; }
+.kanban-priority-pill--high { background: #f97316; }
+.kanban-priority-pill--critical { background: #ef4444; }
+
+.kanban-card__due {
+    font-size: 12px;
+    color: var(--wo-text-muted);
+    text-align: right;
+    white-space: nowrap;
+}
+
+.kanban-card__due.is-overdue {
+    color: var(--wo-danger);
+    font-weight: 600;
+}
+
+.kanban-column.drag-over {
+    background: var(--wo-primary-light);
+    border: 2px dashed var(--wo-primary);
+}
+
+.column-pending .kanban-header { border-bottom-color: #64748b; }
+.column-progress .kanban-header { border-bottom-color: var(--wo-primary); }
+.column-submitted .kanban-header { border-bottom-color: #0891b2; }
+.column-approved .kanban-header { border-bottom-color: #f59e0b; }
+.column-completed .kanban-header { border-bottom-color: var(--wo-success); }
+
+.card-priority-low { border-left-color: var(--wo-success) !important; }
+.card-priority-medium { border-left-color: var(--wo-primary) !important; }
+.card-priority-high { border-left-color: var(--wo-warning) !important; }
+.card-priority-critical { border-left-color: var(--wo-danger) !important; }
+
+.task-badge {
+    font-size: 10px;
+    padding: 3px 8px;
+    border-radius: 999px;
+    display: inline-block;
+    line-height: 1.3;
+    white-space: nowrap;
+}
+
+.kanban-card-meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.kanban-card-badges {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    width: 100%;
+}
+
+.kanban-card-due {
+    font-size: 12px;
+    color: var(--wo-text-muted);
+    line-height: 1.3;
+}
+
+.kanban-card-due.is-overdue {
+    color: var(--wo-danger);
+    font-weight: 600;
+}
+
+.kanban-badge-priority-low { background: #d1fae5; color: #065f46; }
+.kanban-badge-priority-medium { background: #dbeafe; color: #1d4ed8; }
+.kanban-badge-priority-high { background: #ffedd5; color: #c2410c; }
+.kanban-badge-priority-critical { background: #fee2e2; color: #991b1b; }
+.kanban-badge-status { background: #f1f5f9; color: #475569; }
+.kanban-badge-overdue { background: #fee2e2; color: #991b1b; }
+
+.kanban-loading-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.45);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.kanban-loading-overlay.is-visible { display: flex; }
+
+.kanban-toast.toast-success {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 10000;
+    background: var(--wo-text);
+    color: #fff;
+    border: none;
+    border-left: 4px solid var(--wo-success);
+    border-radius: var(--wo-radius-md);
+}
+
+/* Task details */
+.comment-item {
+    padding: 14px 0;
+    border-bottom: 1px solid var(--wo-border);
+    display: flex;
+    gap: 12px;
+}
+
+.comment-item:last-child { border-bottom: none; }
+
+.comment-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--wo-radius-md);
+    background: linear-gradient(135deg, var(--wo-primary), var(--wo-secondary));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-weight: 600;
+    font-size: 13px;
+    flex-shrink: 0;
+}
+
+.document-item {
+    padding: 14px 16px;
+    background: #f8fafc;
+    border: 1px solid var(--wo-border);
+    border-radius: var(--wo-radius-md);
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.wo-details-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+}
+
+@media (max-width: 992px) {
+    .wo-details-grid { grid-template-columns: 1fr; }
+}

@@ -1,0 +1,201 @@
+﻿@model WorkOps.Models.CreateEmployeeViewModel
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewBag.Title = "Add New Employee";
+}
+
+<link href="@Url.Content("~/Content/css/pages/admin-modules.css")" rel="stylesheet" />
+
+<div class="wo-page animate-fade-up">
+    <div class="wo-page-header">
+        <div>
+            <h2>Add New Employee</h2>
+            <p>Create a new employee account and profile</p>
+        </div>
+        <a href="@Url.Action("Index", "Employee")" class="btn-topbar-secondary">
+            <i data-lucide="arrow-left" style="width:16px;height:16px;"></i> Back to List
+        </a>
+    </div>
+
+    @using (Html.BeginForm("Create", "Employee", FormMethod.Post, new { enctype = "multipart/form-data", @class = "needs-validation", id = "employeeCreateForm" }))
+    {
+        @Html.AntiForgeryToken()
+        @Html.ValidationSummary(true, "", new { @class = "alert alert-danger" })
+
+        <ul class="nav nav-tabs wo-form-tabs" id="employeeFormTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="tab-personal" data-bs-toggle="tab" data-bs-target="#pane-personal" type="button" role="tab">Personal</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="tab-professional" data-bs-toggle="tab" data-bs-target="#pane-professional" type="button" role="tab">Professional</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="tab-emergency" data-bs-toggle="tab" data-bs-target="#pane-emergency" type="button" role="tab">Emergency</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="tab-account" data-bs-toggle="tab" data-bs-target="#pane-account" type="button" role="tab">Account</button>
+            </li>
+        </ul>
+
+        <div class="tab-content" id="employeeFormTabContent">
+            <div class="tab-pane fade show active" id="pane-personal" role="tabpanel">
+                <div class="form-section wo-form-section">
+                    <h5 class="section-title wo-form-section__title"><i class="fas fa-user"></i> Personal Information</h5>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            @Html.LabelFor(m => m.FirstName)
+                            @Html.TextBoxFor(m => m.FirstName, new { @class = "form-control", placeholder = "Enter first name" })
+                            @Html.ValidationMessageFor(m => m.FirstName, "", new { @class = "text-danger" })
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            @Html.LabelFor(m => m.LastName)
+                            @Html.TextBoxFor(m => m.LastName, new { @class = "form-control", placeholder = "Enter last name" })
+                            @Html.ValidationMessageFor(m => m.LastName, "", new { @class = "text-danger" })
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            @Html.LabelFor(m => m.Email)
+                            @Html.TextBoxFor(m => m.Email, new { @class = "form-control", placeholder = "enter@workops.com", type = "email" })
+                            @Html.ValidationMessageFor(m => m.Email, "", new { @class = "text-danger" })
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            @Html.LabelFor(m => m.Phone)
+                            @Html.TextBoxFor(m => m.Phone, new { @class = "form-control", placeholder = "+1 234 567 8900" })
+                            @Html.ValidationMessageFor(m => m.Phone, "", new { @class = "text-danger" })
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            @Html.LabelFor(m => m.DateOfBirth)
+                            @Html.TextBoxFor(m => m.DateOfBirth, new { @class = "form-control", type = "date" })
+                        </div>
+                        <div class="col-md-12 mb-3">
+                            @Html.LabelFor(m => m.Address)
+                            @Html.TextAreaFor(m => m.Address, new { @class = "form-control", rows = 2, placeholder = "Enter residential address" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-pane fade" id="pane-professional" role="tabpanel">
+                <div class="form-section wo-form-section">
+                    <h5 class="section-title wo-form-section__title"><i class="fas fa-briefcase"></i> Professional Information</h5>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            @Html.LabelFor(m => m.DepartmentID)
+                            @Html.DropDownListFor(m => m.DepartmentID, Model.Departments, "Select Department", new { @class = "form-select" })
+                            @Html.ValidationMessageFor(m => m.DepartmentID, "", new { @class = "text-danger" })
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            @Html.LabelFor(m => m.Position)
+                            @Html.TextBoxFor(m => m.Position, new { @class = "form-control", placeholder = "e.g., Software Engineer" })
+                            @Html.ValidationMessageFor(m => m.Position, "", new { @class = "text-danger" })
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            @Html.LabelFor(m => m.ManagerID)
+                            @Html.DropDownListFor(m => m.ManagerID, Model.Managers, "Select Manager", new { @class = "form-select", id = "ManagerID" })
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            @Html.LabelFor(m => m.JoiningDate)
+                            @Html.TextBoxFor(m => m.JoiningDate, "{0:yyyy-MM-dd}", new { @class = "form-control", type = "date" })
+                            @Html.ValidationMessageFor(m => m.JoiningDate, "", new { @class = "text-danger" })
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            @Html.LabelFor(m => m.Salary)
+                            @Html.TextBoxFor(m => m.Salary, new { @class = "form-control", placeholder = "Annual salary", type = "number" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-pane fade" id="pane-emergency" role="tabpanel">
+                <div class="form-section wo-form-section">
+                    <h5 class="section-title wo-form-section__title"><i class="fas fa-phone-alt"></i> Emergency Contact</h5>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            @Html.LabelFor(m => m.EmergencyContact)
+                            @Html.TextBoxFor(m => m.EmergencyContact, new { @class = "form-control", placeholder = "Full name" })
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            @Html.LabelFor(m => m.EmergencyPhone)
+                            @Html.TextBoxFor(m => m.EmergencyPhone, new { @class = "form-control", placeholder = "Phone number" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-pane fade" id="pane-account" role="tabpanel">
+                <div class="form-section wo-form-section">
+                    <h5 class="section-title wo-form-section__title"><i class="fas fa-lock"></i> Account &amp; Profile</h5>
+                    <div class="row">
+                        <div class="col-md-12 mb-3">
+                            <div class="profile-preview"><i class="fas fa-user"></i></div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            @Html.LabelFor(m => m.RoleID)
+                            @Html.DropDownListFor(m => m.RoleID, Model.Roles, "Select Role", new { @class = "form-select", id = "RoleID" })
+                            @Html.ValidationMessageFor(m => m.RoleID, "", new { @class = "text-danger" })
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            @Html.LabelFor(m => m.ProfilePicture)
+                            <input type="file" name="ProfilePicture" class="form-control" accept="image/*" id="profilePictureInput">
+                            <small class="text-muted">Max size: 10MB. Allowed: JPG, PNG</small>
+                        </div>
+                        <div class="col-md-12 mb-3">
+                            <div class="form-check">
+                                @Html.CheckBoxFor(m => m.GeneratePassword, new { @class = "form-check-input", id = "generatePassword" })
+                                @Html.LabelFor(m => m.GeneratePassword, new { @class = "form-check-label" })
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3" id="passwordFields" style="display: none;">
+                            @Html.LabelFor(m => m.Password)
+                            @Html.PasswordFor(m => m.Password, new { @class = "form-control", placeholder = "Enter password" })
+                            @Html.ValidationMessageFor(m => m.Password, "", new { @class = "text-danger" })
+                        </div>
+                        <div class="col-md-6 mb-3" id="confirmPasswordFields" style="display: none;">
+                            @Html.LabelFor(m => m.ConfirmPassword)
+                            @Html.PasswordFor(m => m.ConfirmPassword, new { @class = "form-control", placeholder = "Confirm password" })
+                            @Html.ValidationMessageFor(m => m.ConfirmPassword, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="wo-form-footer">
+            <button type="submit" class="btn-topbar-primary border-0">
+                <i data-lucide="save" style="width:16px;height:16px;"></i> Create Employee
+            </button>
+            <a href="@Url.Action("Index", "Employee")" class="btn-topbar-secondary">Cancel</a>
+        </div>
+    }
+</div>
+
+@section scripts {
+    <script>
+        var adminRoleId = @(ViewBag.AdminRoleId != null ? ViewBag.AdminRoleId.ToString() : "null");
+
+        function syncManagerField() {
+            var roleId = parseInt($('#RoleID').val(), 10);
+            var isAdmin = adminRoleId && roleId === adminRoleId;
+            $('#ManagerID').prop('disabled', isAdmin);
+            if (isAdmin) $('#ManagerID').val('');
+        }
+
+        $(document).ready(function() {
+            $('#generatePassword').change(function() {
+                if ($(this).is(':checked')) {
+                    $('#passwordFields, #confirmPasswordFields').hide();
+                    $('#Password, #ConfirmPassword').val('').prop('required', false);
+                } else {
+                    $('#passwordFields, #confirmPasswordFields').show();
+                    $('#Password, #ConfirmPassword').prop('required', true);
+                }
+            });
+            $('#generatePassword').trigger('change');
+            $('#RoleID').on('change', syncManagerField);
+            syncManagerField();
+            $('#employeeCreateForm').on('submit', function() {
+                $('#ManagerID').prop('disabled', false);
+            });
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        });
+    </script>
+}

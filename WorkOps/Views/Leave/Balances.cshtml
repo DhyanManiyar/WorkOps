@@ -1,0 +1,77 @@
+﻿@using System.Linq
+@model List<WorkOps.Models.LeaveBalanceViewModel>
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewBag.Title = "Leave Balances";
+}
+
+<link href="@Url.Content("~/Content/css/pages/admin-modules.css")" rel="stylesheet" />
+<link href="@Url.Content("~/Content/css/pages/admin-attendance-leave.css")" rel="stylesheet" />
+
+@section TopBarActions {
+    <a href="@Url.Action("Index", "Leave")" class="btn-topbar-secondary">
+        <i data-lucide="arrow-left" style="width:16px;height:16px;"></i> Dashboard
+    </a>
+    <a href="@Url.Action("Create", "Leave")" class="btn-topbar-primary">
+        <i data-lucide="plus-circle" style="width:16px;height:16px;"></i> Create Leave
+    </a>
+}
+
+<div class="wo-page animate-fade-up">
+    <div class="wo-page-header">
+        <div>
+            <h2>Leave Balances</h2>
+            <p>Employee leave allocation and usage</p>
+        </div>
+    </div>
+
+    <div class="filter-bar-premium wo-filter-bar">
+        <form method="get" action="@Url.Action("Balances", "Leave")" class="filter-grid">
+            <div class="filter-group" style="max-width:200px;">
+                <label>Year</label>
+                @Html.DropDownList("year", ViewBag.Years as SelectList, new { @class = "filter-input form-select", onchange = "this.form.submit()" })
+            </div>
+        </form>
+    </div>
+
+    @if (Model.Any())
+    {
+        <div class="row g-3">
+            @foreach (var item in Model)
+            {
+                <div class="col-md-6 col-lg-4">
+                    <div class="balance-card" style="border-left-color: @(item.UsageColor == "danger" ? "#ef4444" : item.UsageColor == "warning" ? "#f59e0b" : "#10b981")">
+                        <div class="d-flex justify-content-between align-items-start gap-2">
+                            <div>
+                                <strong style="font-size:14px;">@item.EmployeeName</strong>
+                                <div class="small text-muted">@item.Department</div>
+                            </div>
+                            <span class="badge bg-@item.UsageColor">@item.UsagePercentage%</span>
+                        </div>
+                        <div class="mt-3">
+                            <div class="d-flex justify-content-between small text-muted mb-1">
+                                <span>@item.LeaveType</span>
+                                <span>@item.UsedDays / @item.TotalDays days used</span>
+                            </div>
+                            <div class="progress progress-custom">
+                                <div class="progress-bar bg-@item.UsageColor" style="width: @item.UsagePercentage%"></div>
+                            </div>
+                            <div class="mt-2 text-center">
+                                <strong class="text-@item.UsageColor" style="font-size:14px;">@item.RemainingDays days remaining</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="data-table-container-premium">
+            <div class="wo-empty-state">
+                <i data-lucide="pie-chart" style="width:48px;height:48px;"></i>
+                <p class="mb-0">No leave balance records found</p>
+            </div>
+        </div>
+    }
+</div>

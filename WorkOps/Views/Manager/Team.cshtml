@@ -1,0 +1,71 @@
+@using System.Linq
+@model List<WorkOps.Models.TeamMemberViewModel>
+@{
+    Layout = "~/Views/Shared/_ManagerLayout.cshtml";
+    ViewBag.Title = "My Team";
+}
+
+@section TopBarActions {
+    <a href="@Url.Action("AssignTask", "Manager")" class="btn-topbar-primary">
+        <i data-lucide="plus" style="width:16px;height:16px;"></i> Assign Task
+    </a>
+}
+
+<div class="wo-page">
+    <div class="wo-page-header">
+        <div>
+            <h2>Team members</h2>
+            <p>@Model.Count member(s) reporting to you</p>
+        </div>
+    </div>
+
+    <div class="data-table-container-premium">
+        @if (Model == null || !Model.Any())
+        {
+            <div class="wo-empty-state-inline">
+                <i data-lucide="users" style="width:48px;height:48px;"></i>
+                <p class="mb-0">No team members found. Assign employees with your EmployeeID as their Manager.</p>
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="employee-table">
+                    <thead>
+                        <tr>
+                            <th>Employee</th>
+                            <th>Position</th>
+                            <th>Department</th>
+                            <th>Active Tasks</th>
+                            <th>Completed</th>
+                            <th>Overdue</th>
+                            <th>Today</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var m in Model)
+                        {
+                            <tr>
+                                <td>
+                                    <div class="employee-info">
+                                        <div class="team-avatar">@m.Initials</div>
+                                        <div>
+                                            <div class="employee-name">@m.FullName</div>
+                                            <div class="employee-id">@m.Email</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>@m.Position</td>
+                                <td><span class="dept-badge">@m.Department</span></td>
+                                <td><span class="dept-badge">@m.ActiveTasks</span></td>
+                                <td>@m.CompletedTasks</td>
+                                <td>@if (m.OverdueTasks > 0) { <span class="absent-badge">@m.OverdueTasks</span> } else { <span class="text-muted">0</span> }</td>
+                                <td><span class="badge bg-@m.TodayAttendanceColor">@m.TodayAttendance</span></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>

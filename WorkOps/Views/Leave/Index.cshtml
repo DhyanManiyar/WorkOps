@@ -1,0 +1,132 @@
+﻿@using System.Linq
+@model WorkOps.Models.LeaveDashboardViewModel
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewBag.Title = "Leave Management";
+}
+
+<link href="@Url.Content("~/Content/css/pages/admin-modules.css")" rel="stylesheet" />
+<link href="@Url.Content("~/Content/css/pages/admin-attendance-leave.css")" rel="stylesheet" />
+
+@section TopBarActions {
+    <a href="@Url.Action("Balances", "Leave")" class="btn-topbar-secondary">
+        <i data-lucide="pie-chart" style="width:16px;height:16px;"></i> Balances
+    </a>
+    <a href="@Url.Action("Create", "Leave")" class="btn-topbar-primary">
+        <i data-lucide="plus-circle" style="width:16px;height:16px;"></i> Create Leave
+    </a>
+}
+
+<div class="wo-page animate-fade-up">
+    <div class="wo-page-header">
+        <div>
+            <h2>Leave Management</h2>
+            <p>Manage employee leave requests and balances</p>
+        </div>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card-premium wo-stat-card stat-accent-warning">
+            <div class="stat-left">
+                <div class="stat-number">@Model.PendingLeaves</div>
+                <div class="stat-label">Pending Approval</div>
+            </div>
+            <div class="stat-icon"><i data-lucide="clock"></i></div>
+        </div>
+        <div class="stat-card-premium wo-stat-card stat-accent-success">
+            <div class="stat-left">
+                <div class="stat-number">@Model.ApprovedLeaves</div>
+                <div class="stat-label">Approved</div>
+            </div>
+            <div class="stat-icon"><i data-lucide="check-circle"></i></div>
+        </div>
+        <div class="stat-card-premium wo-stat-card stat-accent-danger">
+            <div class="stat-left">
+                <div class="stat-number">@Model.RejectedLeaves</div>
+                <div class="stat-label">Rejected</div>
+            </div>
+            <div class="stat-icon"><i data-lucide="x-circle"></i></div>
+        </div>
+        <div class="stat-card-premium wo-stat-card stat-accent-info">
+            <div class="stat-left">
+                <div class="stat-number">@Model.ApprovalRate%</div>
+                <div class="stat-label">Approval Rate</div>
+            </div>
+            <div class="stat-icon"><i data-lucide="trending-up"></i></div>
+        </div>
+    </div>
+
+    <div class="leave-dashboard-grid">
+        <div class="wo-split-layout__main">
+            <div class="data-card detail-card wo-detail-card">
+                <div class="wo-card-header">
+                    <h5>Recent Leave Requests</h5>
+                    <a href="@Url.Action("Requests", "Leave")" class="wo-link-muted">View all</a>
+                </div>
+
+                @foreach (var item in Model.RecentRequests)
+                {
+                    <div class="request-card" style="border-left-color: @(item.Status == 1 ? "#f59e0b" : item.Status == 2 ? "#10b981" : "#ef4444");"
+                         onclick="location.href='@Url.Action("Details", "Leave", new { id = item.LeaveRequestID })'">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="avatar-sm">@item.Initials</div>
+                            <div class="flex-grow-1">
+                                <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+                                    <strong style="font-size:14px;">@item.EmployeeName</strong>
+                                    <span class="badge bg-@item.StatusColor">@item.StatusText</span>
+                                </div>
+                                <div class="small text-muted mt-1">
+                                    @item.LeaveTypeName · @item.StartDate.ToString("dd/MM") – @item.EndDate.ToString("dd/MM") · @item.TotalDays days
+                                </div>
+                                <div class="small text-muted">Applied @item.AppliedDate.ToString("dd MMM yyyy")</div>
+                            </div>
+                        </div>
+                    </div>
+                }
+
+                @if (!Model.RecentRequests.Any())
+                {
+                    <div class="wo-empty-state py-4">
+                        <i data-lucide="inbox" style="width:40px;height:40px;"></i>
+                        <p class="mb-0">No leave requests found</p>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <div class="wo-split-layout__side">
+            <div class="data-card detail-card wo-detail-card">
+                <div class="wo-card-header">
+                    <h5>Low Balance Alerts</h5>
+                </div>
+
+                @foreach (var alert in Model.LowBalanceAlerts)
+                {
+                    <div class="alert-card">
+                        <div class="d-flex justify-content-between gap-3">
+                            <div>
+                                <strong style="font-size:14px;">@alert.EmployeeName</strong>
+                                <div class="small text-muted">@alert.Department</div>
+                            </div>
+                            <div class="text-end">
+                                <div class="small text-muted">@alert.LeaveType</div>
+                                <div class="fw-bold" style="color:#b45309;font-size:13px;">@alert.RemainingDays days left</div>
+                            </div>
+                        </div>
+                        <div class="progress mt-2">
+                            <div class="progress-bar bg-warning" style="width: @alert.UsagePercentage%"></div>
+                        </div>
+                    </div>
+                }
+
+                @if (!Model.LowBalanceAlerts.Any())
+                {
+                    <div class="wo-empty-state py-4">
+                        <i data-lucide="check-circle" style="width:40px;height:40px;color:var(--wo-success);"></i>
+                        <p class="mb-0">All leave balances are healthy</p>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

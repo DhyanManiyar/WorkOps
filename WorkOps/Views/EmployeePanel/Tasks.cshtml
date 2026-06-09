@@ -1,0 +1,63 @@
+@using System.Linq
+@model List<WorkOps.Models.TaskListViewModel>
+@{
+    Layout = "~/Views/Shared/_EmployeeLayout.cshtml";
+    ViewBag.Title = "My Tasks";
+    var currentStatus = ViewBag.CurrentStatus as int?;
+}
+
+<div class="wo-page">
+    <div class="wo-page-header">
+        <div>
+            <h2>My tasks</h2>
+            <p>View and update your assigned work</p>
+        </div>
+    </div>
+
+    <div class="status-filter mb-3">
+        <a href="@Url.Action("Tasks", "EmployeePanel")" class="filter-pill @(currentStatus == null ? "active" : "")">All</a>
+        <a href="@Url.Action("Tasks", "EmployeePanel", new { status = 1 })" class="filter-pill @(currentStatus == 1 ? "active" : "")">Pending</a>
+        <a href="@Url.Action("Tasks", "EmployeePanel", new { status = 2 })" class="filter-pill @(currentStatus == 2 ? "active" : "")">In Progress</a>
+        <a href="@Url.Action("Tasks", "EmployeePanel", new { status = 3 })" class="filter-pill @(currentStatus == 3 ? "active" : "")">Submitted</a>
+        <a href="@Url.Action("Tasks", "EmployeePanel", new { status = 5 })" class="filter-pill @(currentStatus == 5 ? "active" : "")">Completed</a>
+    </div>
+
+    <div class="data-table-container-premium">
+        @if (Model == null || !Model.Any())
+        {
+            <div class="wo-empty-state-inline py-5"><p class="mb-0 text-muted">No tasks in this category.</p></div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="employee-table">
+                    <thead>
+                        <tr>
+                            <th>Code</th>
+                            <th>Title</th>
+                            <th>Priority</th>
+                            <th>Status</th>
+                            <th>Due</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var t in Model)
+                        {
+                            <tr class="@(t.IsOverdue ? "table-warning" : "")">
+                                <td><code>@t.TaskCode</code></td>
+                                <td class="employee-name">@t.Title</td>
+                                <td><span class="badge bg-@t.PriorityColor">@t.PriorityText</span></td>
+                                <td><span class="badge bg-@t.StatusColor">@t.StatusText</span></td>
+                                <td>@t.DueDate.ToString("dd/MM/yyyy")</td>
+                                <td>
+                                    <a href="@Url.Action("TaskDetails", "EmployeePanel", new { id = t.TaskID })" class="btn btn-sm btn-outline-primary">View</a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>

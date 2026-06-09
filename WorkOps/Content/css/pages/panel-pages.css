@@ -1,0 +1,306 @@
+/* Manager & Employee portal pages */
+
+.wo-page { animation: wo-fade-up 0.35s ease; }
+
+/* Panel list pages — comfortable spacing (uses admin-modules table styles) */
+.wo-page .data-table-container-premium {
+    margin-top: 8px;
+}
+
+.wo-page .data-table-container-premium .table-responsive {
+    overflow-x: auto;
+}
+
+.wo-page .status-filter,
+.wo-page .filter-pill-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.btn-emp-primary {
+    background: var(--wo-primary);
+    color: #fff;
+    border: none;
+    padding: 8px 18px;
+    border-radius: var(--wo-radius-md);
+    font-weight: 600;
+    font-size: 13px;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.btn-emp-primary:hover { background: var(--wo-primary-hover); color: #fff; }
+
+.stat-box {
+    background: var(--wo-surface);
+    border: 1px solid var(--wo-border);
+    border-radius: var(--wo-radius-lg);
+    padding: 18px;
+    box-shadow: var(--wo-shadow-sm);
+}
+
+.stat-box .num {
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--wo-text);
+}
+
+.stat-box .lbl {
+    font-size: 12px;
+    color: var(--wo-text-secondary);
+    font-weight: 500;
+}
+
+.wo-hero-banner {
+    background: linear-gradient(135deg, var(--wo-primary), var(--wo-secondary));
+    border-radius: var(--wo-radius-xl);
+    padding: 28px 32px;
+    margin-bottom: 24px;
+    color: #fff;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 20px;
+    box-shadow: var(--wo-shadow-md);
+}
+
+.wo-hero-banner h2 {
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: #fff;
+}
+
+.wo-hero-banner p { margin: 0; opacity: 0.92; }
+
+.wo-hero-stat {
+    text-align: center;
+}
+
+.wo-hero-stat__value {
+    font-size: 28px;
+    font-weight: 800;
+}
+
+.wo-hero-stat__label {
+    font-size: 12px;
+    opacity: 0.85;
+}
+
+.wo-chart-card {
+    background: var(--wo-surface);
+    border: 1px solid var(--wo-border);
+    border-radius: var(--wo-radius-lg);
+    padding: 20px;
+    height: 100%;
+    box-shadow: var(--wo-shadow-sm);
+}
+
+.wo-chart-card__title {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    color: var(--wo-text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.wo-chart-card__title i,
+.wo-chart-card__title svg { color: var(--wo-primary); }
+
+.team-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--wo-border);
+}
+
+.team-row:last-child { border-bottom: none; }
+
+.team-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--wo-radius-md);
+    background: linear-gradient(135deg, var(--wo-primary), var(--wo-secondary));
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 13px;
+    flex-shrink: 0;
+}
+
+.wo-approval-card {
+    background: #f8fafc;
+    border: 1px solid var(--wo-border);
+    border-radius: var(--wo-radius-md);
+    padding: 16px;
+    margin-bottom: 12px;
+}
+
+.wo-approval-card:last-child { margin-bottom: 0; }
+
+.wo-form-card {
+    max-width: 720px;
+}
+
+.wo-form-card--narrow { max-width: 600px; }
+
+.wo-tabs-modern .nav-link {
+    font-weight: 500;
+    color: var(--wo-text-secondary);
+    border: none;
+    border-bottom: 2px solid transparent;
+    border-radius: 0;
+    padding: 10px 16px;
+}
+
+.wo-tabs-modern .nav-link.active {
+    color: var(--wo-primary);
+    border-bottom-color: var(--wo-primary);
+    background: transparent;
+}
+
+.filter-pill,
+.filter-btn {
+    padding: 8px 18px;
+    border-radius: 999px;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 500;
+    transition: background 0.15s, color 0.15s;
+    border: 1px solid var(--wo-border);
+    display: inline-block;
+    margin-bottom: 4px;
+}
+
+.filter-pill.active,
+.filter-btn.active {
+    background: var(--wo-primary);
+    color: #fff;
+    border-color: var(--wo-primary);
+}
+
+.filter-pill:not(.active),
+.filter-btn:not(.active) {
+    background: var(--wo-surface);
+    color: var(--wo-text-secondary);
+}
+
+.filter-pill:not(.active):hover,
+.filter-btn:not(.active):hover {
+    background: #f1f5f9;
+}
+
+.wo-metric-highlight {
+    font-size: 42px;
+    font-weight: 800;
+    color: var(--wo-primary);
+    line-height: 1;
+}
+
+.wo-list-link {
+    font-weight: 600;
+    text-decoration: none;
+    color: var(--wo-text);
+}
+
+.wo-list-link:hover { color: var(--wo-primary); }
+
+.wo-summary-list li {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--wo-border);
+    font-size: 14px;
+}
+
+.wo-summary-list li:last-child { border-bottom: none; }
+
+.wo-link-muted {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--wo-primary);
+    text-decoration: none;
+}
+
+.wo-link-muted:hover { text-decoration: underline; }
+
+.progress-custom {
+    height: 8px;
+    border-radius: 999px;
+    background: #f1f5f9;
+}
+
+.present-badge {
+    background: #d1fae5;
+    color: #065f46;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.absent-badge {
+    background: #fee2e2;
+    color: #991b1b;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.wo-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.comment-item {
+    padding: 14px 0;
+    border-bottom: 1px solid var(--wo-border);
+    display: flex;
+    gap: 12px;
+}
+
+.comment-item:last-child { border-bottom: none; }
+
+.comment-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--wo-radius-md);
+    background: linear-gradient(135deg, var(--wo-primary), var(--wo-secondary));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-weight: 600;
+    font-size: 13px;
+    flex-shrink: 0;
+}
+
+.wo-empty-state-inline {
+    text-align: center;
+    padding: 48px 24px;
+    color: var(--wo-text-secondary);
+}
+
+.wo-empty-state-inline i,
+.wo-empty-state-inline svg {
+    opacity: 0.35;
+    margin-bottom: 12px;
+}
+
+@media (max-width: 992px) {
+    .wo-hero-banner { padding: 22px; }
+}

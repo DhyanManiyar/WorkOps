@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+ <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <!-- Diagram content (shape and connector positions) -->
+    <edmx:Diagrams>
+      <Diagram DiagramId="d1af55e9a3834d0b95b41f4ee687fbac" Name="Diagram1" ZoomLevel="55">
+        <EntityTypeShape EntityType="WorkOpsDBModel.ActivityLog" Width="1.5" PointX="5.25" PointY="14.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="WorkOpsDBModel.Attendance" Width="1.5" PointX="10.5" PointY="12.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="WorkOpsDBModel.Department" Width="1.5" PointX="10.5" PointY="16.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="WorkOpsDBModel.Employee" Width="1.5" PointX="8.25" PointY="14.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="WorkOpsDBModel.Holiday" Width="1.5" PointX="1.125" PointY="9.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="WorkOpsDBModel.LeaveBalance" Width="1.5" PointX="10.5" PointY="20.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="WorkOpsDBModel.LeaveRequest" Width="1.5" PointX="15.5" PointY="15.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="WorkOpsDBModel.LeaveType" Width="1.5" PointX="13.25" PointY="11.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="WorkOpsDBModel.Notification" Width="1.5" PointX="5.25" PointY="30.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="WorkOpsDBModel.PerformanceReview" Width="1.5" PointX="10.5" PointY="28.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="WorkOpsDBModel.Role" Width="1.5" PointX="0.75" PointY="16.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="WorkOpsDBModel.Setting" Width="1.5" PointX="5" PointY="9.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="WorkOpsDBModel.TaskComment" Width="1.5" PointX="18" PointY="16.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="WorkOpsDBModel.TaskDocument" Width="1.5" PointX="18" PointY="12.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="WorkOpsDBModel.User" Width="1.5" PointX="3" PointY="16" IsExpanded="true" />
+        <EntityTypeShape EntityType="WorkOpsDBModel.WorkTask" Width="1.5" PointX="12.75" PointY="15.125" IsExpanded="true" />
+        <AssociationConnector Association="WorkOpsDBModel.FK_ActivityLogs_Users" ManuallyRouted="false" />
+        <AssociationConnector Association="WorkOpsDBModel.FK_Attendance_Employees" ManuallyRouted="false" />
+        <AssociationConnector Association="WorkOpsDBModel.FK_Departments_DepartmentHead" ManuallyRouted="false" />
+        <AssociationConnector Association="WorkOpsDBModel.FK_Employees_Departments" ManuallyRouted="false" />
+        <AssociationConnector Association="WorkOpsDBModel.FK_WorkTasks_Departments" ManuallyRouted="false" />
+        <AssociationConnector Association="WorkOpsDBModel.FK_Employees_Managers" ManuallyRouted="false" />
+        <AssociationConnector Association="WorkOpsDBModel.FK_Employees_Users" ManuallyRouted="false" />
+        <AssociationConnector Association="WorkOpsDBModel.FK_LeaveBalances_Employees" ManuallyRouted="false" />
+        <AssociationConnector Association="WorkOpsDBModel.FK_LeaveRequests_ApprovedBy" ManuallyRouted="false" />
+        <AssociationConnector Association="WorkOpsDBModel.FK_LeaveRequests_Employees" ManuallyRouted="false" />
+        <AssociationConnector Association="WorkOpsDBModel.FK_PerformanceReviews_Employees" ManuallyRouted="false" />
+        <AssociationConnector Association="WorkOpsDBModel.FK_PerformanceReviews_Reviewers" ManuallyRouted="false" />
+        <AssociationConnector Association="WorkOpsDBModel.FK_TaskComments_Employees" ManuallyRouted="false" />
+        <AssociationConnector Association="WorkOpsDBModel.FK_TaskDocuments_Employees" ManuallyRouted="false" />
+        <AssociationConnector Association="WorkOpsDBModel.FK_WorkTasks_AssignedBy" ManuallyRouted="false" />
+        <AssociationConnector Association="WorkOpsDBModel.FK_WorkTasks_AssignedTo" ManuallyRouted="false" />
+        <AssociationConnector Association="WorkOpsDBModel.FK_LeaveBalances_LeaveTypes" ManuallyRouted="false" />
+        <AssociationConnector Association="WorkOpsDBModel.FK_LeaveRequests_LeaveTypes" ManuallyRouted="false" />
+        <AssociationConnector Association="WorkOpsDBModel.FK_Notifications_Users" ManuallyRouted="false" />
+        <AssociationConnector Association="WorkOpsDBModel.FK_Users_Roles" ManuallyRouted="false" />
+        <AssociationConnector Association="WorkOpsDBModel.FK_TaskComments_WorkTasks" ManuallyRouted="false" />
+        <AssociationConnector Association="WorkOpsDBModel.FK_TaskDocuments_WorkTasks" ManuallyRouted="false" />
+      </Diagram>
+    </edmx:Diagrams>
+  </edmx:Designer>
+</edmx:Edmx>

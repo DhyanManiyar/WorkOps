@@ -1,0 +1,129 @@
+﻿@model WorkOps.Models.MarkAttendanceViewModel
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewBag.Title = "Mark Attendance";
+}
+
+<link href="@Url.Content("~/Content/css/pages/admin-modules.css")" rel="stylesheet" />
+<link href="@Url.Content("~/Content/css/pages/admin-attendance-leave.css")" rel="stylesheet" />
+
+<div class="wo-page animate-fade-up">
+    <div class="wo-page-header">
+        <div>
+            <h2>Mark Attendance</h2>
+            <p>Record employee check-in and check-out</p>
+        </div>
+        <a href="@Url.Action("Index", "Attendance")" class="btn-topbar-secondary">
+            <i data-lucide="arrow-left" style="width:16px;height:16px;"></i> Back to Dashboard
+        </a>
+    </div>
+
+    <div class="form-section wo-form-section">
+        @using (Html.BeginForm("Mark", "Attendance", FormMethod.Post))
+        {
+            @Html.AntiForgeryToken()
+            @Html.ValidationSummary(true, "", new { @class = "alert alert-danger" })
+
+            <h5 class="section-title wo-form-section__title"><i data-lucide="clipboard-check" style="width:18px;height:18px;"></i> Attendance record</h5>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    @Html.LabelFor(m => m.EmployeeID)
+                    @Html.DropDownListFor(m => m.EmployeeID, Model.Employees, "Select Employee", new { @class = "form-select" })
+                    @Html.ValidationMessageFor(m => m.EmployeeID, "", new { @class = "text-danger" })
+                </div>
+                <div class="col-md-6 mb-3">
+                    @Html.LabelFor(m => m.AttendanceDate)
+                    @Html.TextBoxFor(m => m.AttendanceDate, "{0:yyyy-MM-dd}", new { @class = "form-control", type = "date" })
+                    @Html.ValidationMessageFor(m => m.AttendanceDate, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    @Html.LabelFor(m => m.CheckInTime)
+                    @Html.TextBoxFor(m => m.CheckInTime, new { @class = "form-control", type = "time" })
+                </div>
+                <div class="col-md-6 mb-3">
+                    @Html.LabelFor(m => m.CheckOutTime)
+                    @Html.TextBoxFor(m => m.CheckOutTime, new { @class = "form-control", type = "time" })
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Status</label>
+                @Html.HiddenFor(m => m.Status)
+                <div class="attendance-status-grid">
+                    <div class="status-badge status-present attendance-status-option text-center" data-status="1">
+                        <i data-lucide="check-circle" style="width:18px;height:18px;"></i> Present
+                    </div>
+                    <div class="status-badge status-absent attendance-status-option text-center" data-status="2">
+                        <i data-lucide="x-circle" style="width:18px;height:18px;"></i> Absent
+                    </div>
+                    <div class="status-badge status-halfday attendance-status-option text-center" data-status="3">
+                        <i data-lucide="hourglass" style="width:18px;height:18px;"></i> Half Day
+                    </div>
+                    <div class="status-badge status-leave attendance-status-option text-center" data-status="4">
+                        <i data-lucide="palmtree" style="width:18px;height:18px;"></i> On Leave
+                    </div>
+                </div>
+                @Html.ValidationMessageFor(m => m.Status, "", new { @class = "text-danger" })
+            </div>
+
+            <div class="mb-3">
+                @Html.LabelFor(m => m.Notes)
+                @Html.TextAreaFor(m => m.Notes, new { @class = "form-control", rows = 3, placeholder = "Add notes (optional)" })
+            </div>
+
+            <div class="info-card wo-info-callout">
+                <div class="d-flex align-items-start gap-3">
+                    <i data-lucide="info" style="width:20px;height:20px;color:var(--wo-primary);flex-shrink:0;margin-top:2px;"></i>
+                    <div>
+                        <strong>Late arrival</strong>
+                        <p class="small text-muted mb-0 mt-1">Late arrival is automatically calculated if check-in is after 9:30 AM.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="wo-form-footer" style="position:static;border:none;padding:20px 0 0;background:transparent;">
+                <button type="submit" class="btn-topbar-primary" style="display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border:none;border-radius:var(--wo-radius-md);cursor:pointer;">
+                    <i data-lucide="save" style="width:16px;height:16px;"></i> Save Attendance
+                </button>
+            </div>
+        }
+    </div>
+</div>
+
+@section scripts {
+    <script>
+        $(document).ready(function() {
+            var selectedStatus = parseInt($('#Status').val() || '1', 10);
+            var selectedCard = $('.status-badge[data-status="' + selectedStatus + '"]');
+            if (selectedCard.length === 0) {
+                selectedStatus = 1;
+                selectedCard = $('.status-badge[data-status="1"]');
+            }
+            $('.status-badge').removeClass('status-selected');
+            selectedCard.addClass('status-selected');
+            $('#Status').val(selectedStatus);
+
+            if (selectedStatus === 2 || selectedStatus === 4) {
+                $('#CheckInTime, #CheckOutTime').prop('disabled', true);
+            }
+
+            $('.status-badge').click(function() {
+                $('.status-badge').removeClass('status-selected');
+                $(this).addClass('status-selected');
+                $('#Status').val($(this).data('status'));
+
+                if ($(this).data('status') == 2 || $(this).data('status') == 4) {
+                    $('#CheckInTime, #CheckOutTime').prop('disabled', true).val('');
+                } else {
+                    $('#CheckInTime, #CheckOutTime').prop('disabled', false);
+                }
+            });
+
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        });
+    </script>
+}

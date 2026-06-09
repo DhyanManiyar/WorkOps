@@ -1,0 +1,59 @@
+@model WorkOps.Models.HolidayFormViewModel
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewBag.Title = "Add Holiday";
+}
+
+<link href="@Url.Content("~/Content/css/pages/admin-modules.css")" rel="stylesheet" />
+
+<div class="wo-page animate-fade-up">
+    <div class="wo-page-header">
+        <div>
+            <h2>Add Holiday</h2>
+            <p>Create a new holiday in calendar</p>
+        </div>
+        <a href="@Url.Action("Index", "Holiday")" class="btn-topbar-secondary">
+            <i data-lucide="arrow-left" style="width:16px;height:16px;"></i> Back
+        </a>
+    </div>
+
+    @using (Html.BeginForm("Create", "Holiday", FormMethod.Post))
+    {
+        @Html.AntiForgeryToken()
+        @Html.ValidationSummary(true, "", new { @class = "alert alert-danger" })
+
+        <div class="form-section wo-form-section">
+            <h5 class="section-title wo-form-section__title"><i class="fas fa-calendar-plus"></i> Holiday Details</h5>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    @Html.LabelFor(m => m.HolidayName)
+                    @Html.TextBoxFor(m => m.HolidayName, new { @class = "form-control", placeholder = "e.g. Independence Day" })
+                    @Html.ValidationMessageFor(m => m.HolidayName, "", new { @class = "text-danger" })
+                </div>
+                <div class="col-md-6 mb-3">
+                    @Html.LabelFor(m => m.HolidayDate)
+                    @Html.TextBoxFor(m => m.HolidayDate, "{0:yyyy-MM-dd}", new { @class = "form-control", type = "date" })
+                    @Html.ValidationMessageFor(m => m.HolidayDate, "", new { @class = "text-danger" })
+                </div>
+                <div class="col-md-12 mb-3">
+                    @Html.LabelFor(m => m.Description)
+                    @Html.TextAreaFor(m => m.Description, new { @class = "form-control", rows = 3, placeholder = "Optional note for the holiday" })
+                </div>
+                <div class="col-md-12 mb-3">
+                    <div class="form-check form-switch">
+                        @Html.CheckBoxFor(m => m.IsRecurring, new { @class = "form-check-input" })
+                        @Html.LabelFor(m => m.IsRecurring, new { @class = "form-check-label ms-2" })
+                    </div>
+                    <small class="text-muted">Recurring holidays are automatically counted every year on the same date.</small>
+                </div>
+            </div>
+
+            <div class="wo-form-footer" style="position:static; border:none; padding:12px 0 0; background:transparent;">
+                <button type="submit" class="btn-topbar-primary border-0">
+                    <i data-lucide="save" style="width:16px;height:16px;"></i> Save Holiday
+                </button>
+                <a href="@Url.Action("Index", "Holiday")" class="btn-topbar-secondary">Cancel</a>
+            </div>
+        </div>
+    }
+</div>

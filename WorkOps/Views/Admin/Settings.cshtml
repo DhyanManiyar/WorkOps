@@ -1,0 +1,62 @@
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewBag.Title = "System Settings";
+}
+
+<link href="@Url.Content("~/Content/css/pages/admin-modules.css")" rel="stylesheet" />
+
+<div class="wo-page animate-fade-up">
+    <div class="wo-page-header">
+        <div>
+            <h2>System Settings</h2>
+            <p>Application configuration and preferences</p>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-6">
+            <div class="detail-card wo-detail-card">
+                <h5 class="wo-detail-card__title"><i data-lucide="building-2" style="width:18px;height:18px;"></i> Organization</h5>
+                <div class="info-row">
+                    <span class="info-label">Application</span>
+                    <span class="info-value">WorkOps HR Management</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Version</span>
+                    <span class="info-value">1.0 (.NET Framework 4.8)</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Environment</span>
+                    <span class="info-value"><span class="present-badge">Production</span></span>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="detail-card wo-detail-card">
+                <h5 class="wo-detail-card__title"><i data-lucide="shield" style="width:18px;height:18px;"></i> Security</h5>
+                <div class="info-row">
+                    <span class="info-label">Authentication</span>
+                    <span class="info-value">Session-based login</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Password policy</span>
+                    <span class="info-value">8+ chars, mixed case, number, special</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Self-registration</span>
+                    <span class="info-value">@(System.Configuration.ConfigurationManager.AppSettings["AllowSelfRegistration"] == "true" ? "Enabled" : "Disabled")</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="info-card wo-info-callout mt-2">
+        <div class="d-flex align-items-start gap-3">
+            <i data-lucide="info" style="width:20px;height:20px;color:var(--wo-primary);flex-shrink:0;"></i>
+            <div>
+                <strong>Configuration</strong>
+                <p class="small text-muted mb-0 mt-1">Advanced settings are managed via <code>Web.config</code> and database configuration. Contact your system administrator for changes.</p>
+            </div>
+        </div>
+    </div>
+</div>

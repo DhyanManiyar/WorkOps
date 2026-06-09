@@ -1,0 +1,223 @@
+﻿@{
+    ViewBag.Title = "WorkOps - Smart Company Management System";
+    Layout = null;
+    var allowSelfRegistration = System.Configuration.ConfigurationManager.AppSettings["AllowSelfRegistration"] == "true";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WorkOps | Smart Company Management</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="@Url.Content("~/Content/css/modern.css")" rel="stylesheet" />
+    <link href="@Url.Content("~/Content/css/pages/landing.css")" rel="stylesheet" />
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="wo-landing">
+
+    <nav class="navbar navbar-expand-lg wo-landing-nav">
+        <div class="container">
+            <a class="navbar-brand" href="@Url.Action("Index", "Home")">
+                <span class="wo-landing-brand-icon"><i data-lucide="layers"></i></span>
+                WorkOps
+            </a>
+            <button class="navbar-toggler navbar-dark" type="button" data-bs-toggle="collapse" data-bs-target="#navMain" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navMain">
+                <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-1">
+                    <li class="nav-item"><a class="nav-link" href="#features">Features</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#panels">Panels</a></li>
+                    <li class="nav-item"><a class="nav-link" href="@Url.Action("About", "Home")">About</a></li>
+                    <li class="nav-item"><a class="nav-link" href="@Url.Action("Contact", "Home")">Contact</a></li>
+                    @if (allowSelfRegistration)
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link btn-landing-register" href="@Url.Action("Register", "Account")">Create account</a>
+                        </li>
+                    }
+                    <li class="nav-item ms-lg-2">
+                        <a class="nav-link btn-landing-cta" href="@Url.Action("Login", "Account")">Sign in</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <section class="wo-landing-hero">
+        <div class="wo-landing-hero__bg" aria-hidden="true"></div>
+        <div class="container position-relative">
+            <div class="row align-items-center g-5">
+                <div class="col-lg-6 text-lg-start text-center">
+                    <span class="wo-landing-badge">
+                        <i data-lucide="sparkles" style="width:14px;height:14px;"></i>
+                        All-in-one workforce platform
+                    </span>
+                    <h1>Run your company smarter with <span class="wo-landing-gradient-text">WorkOps</span></h1>
+                    <p class="wo-landing-hero__lead">
+                        HR, attendance, tasks, and leave in one modern dashboard. Built for admins, managers, and employees.
+                    </p>
+                    <div class="wo-landing-hero__actions">
+                        <a href="@Url.Action("Login", "Account")" class="btn-hero btn-hero--primary">
+                            <i data-lucide="log-in" style="width:18px;height:18px;"></i> Login to dashboard
+                        </a>
+                        @if (allowSelfRegistration)
+                        {
+                            <a href="@Url.Action("Register", "Account")" class="btn-hero btn-hero--ghost">
+                                <i data-lucide="user-plus" style="width:18px;height:18px;"></i> Create account
+                            </a>
+                        }
+                        <a href="#features" class="btn-hero btn-hero--ghost">Explore features</a>
+                    </div>
+                    <div class="wo-landing-stats">
+                        <div class="wo-landing-stat">
+                            <strong>3</strong>
+                            <span>Role panels</span>
+                        </div>
+                        <div class="wo-landing-stat">
+                            <strong>6+</strong>
+                            <span>Core modules</span>
+                        </div>
+                        <div class="wo-landing-stat">
+                            <strong>24/7</strong>
+                            <span>Self-service</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="wo-landing-preview" aria-hidden="true">
+                        <div class="wo-landing-preview__chrome">
+                            <span></span><span></span><span></span>
+                        </div>
+                        <div class="wo-landing-preview__body">
+                            <div class="wo-landing-preview__sidebar"></div>
+                            <div class="wo-landing-preview__main">
+                                <div class="wo-landing-preview__bar"></div>
+                                <div class="wo-landing-preview__cards">
+                                    <div></div><div></div><div></div><div></div>
+                                </div>
+                                <div class="wo-landing-preview__chart"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="features" class="wo-landing-section wo-landing-showcase">
+        <div class="container">
+            <div class="wo-landing-section__head">
+                <span class="wo-landing-kicker">Everything in one place</span>
+                <h2>Run your company operations with clarity</h2>
+                <p>WorkOps connects HR data, daily tasks, attendance, and leave into one consistent experience.</p>
+            </div>
+            <div class="wo-showcase-grid">
+                <article class="wo-showcase-card wo-showcase-card--blue">
+                    <div class="wo-showcase-card__icon"><i data-lucide="users"></i></div>
+                    <h3>Employee management</h3>
+                    <p>Profiles, departments, roles, and access — organized and easy to maintain.</p>
+                </article>
+                <article class="wo-showcase-card wo-showcase-card--violet">
+                    <div class="wo-showcase-card__icon"><i data-lucide="layout-grid"></i></div>
+                    <h3>Kanban tasks</h3>
+                    <p>Drag-and-drop boards with priorities, due dates, and approval flow.</p>
+                </article>
+                <article class="wo-showcase-card wo-showcase-card--teal">
+                    <div class="wo-showcase-card__icon"><i data-lucide="calendar-check"></i></div>
+                    <h3>Attendance &amp; leave</h3>
+                    <p>Mark attendance in bulk, track holidays, and generate monthly reports.</p>
+                </article>
+                <article class="wo-showcase-card wo-showcase-card--amber">
+                    <div class="wo-showcase-card__icon"><i data-lucide="bell"></i></div>
+                    <h3>Smart notifications</h3>
+                    <p>Stay informed when tasks move, leave is requested, or approvals are needed.</p>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <section id="panels" class="wo-landing-section wo-landing-flow">
+        <div class="container">
+            <div class="wo-landing-section__head">
+                <span class="wo-landing-kicker">How it works</span>
+                <h2>From assignment to completion</h2>
+            </div>
+            <div class="wo-flow-steps">
+                <div class="wo-flow-step">
+                    <span class="wo-flow-step__num">1</span>
+                    <h4>Admin sets up</h4>
+                    <p>Employees, departments, holidays, and policies.</p>
+                </div>
+                <div class="wo-flow-step">
+                    <span class="wo-flow-step__num">2</span>
+                    <h4>Manager assigns</h4>
+                    <p>Tasks and approvals for the team.</p>
+                </div>
+                <div class="wo-flow-step">
+                    <span class="wo-flow-step__num">3</span>
+                    <h4>Employee executes</h4>
+                    <p>Start work, submit tasks, request leave.</p>
+                </div>
+                <div class="wo-flow-step">
+                    <span class="wo-flow-step__num">4</span>
+                    <h4>Everyone tracks</h4>
+                    <p>Dashboards, logs, and reports stay in sync.</p>
+                </div>
+            </div>
+
+            <div class="wo-role-row">
+                <article class="wo-role-tile">
+                    <div class="wo-role-tile__icon wo-role-tile__icon--admin"><i data-lucide="shield"></i></div>
+                    <h3>Admin panel</h3>
+                    <p>Full system control and analytics.</p>
+                </article>
+                <article class="wo-role-tile">
+                    <div class="wo-role-tile__icon wo-role-tile__icon--manager"><i data-lucide="user-cog"></i></div>
+                    <h3>Manager panel</h3>
+                    <p>Team tasks, approvals, and oversight.</p>
+                </article>
+                <article class="wo-role-tile">
+                    <div class="wo-role-tile__icon wo-role-tile__icon--employee"><i data-lucide="user"></i></div>
+                    <h3>Employee panel</h3>
+                    <p>Personal work, attendance, and leave.</p>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <section class="wo-landing-section wo-landing-cta-final">
+        <div class="container">
+            <div class="wo-cta-final">
+                <h2>Bring your team onto WorkOps today</h2>
+                <p>Use your organization account to sign in and open the dashboard built for your role.</p>
+                <div class="wo-cta-final__actions">
+                    <a href="@Url.Action("Login", "Account")" class="btn-hero btn-hero--primary btn-hero--dark">
+                        <i data-lucide="log-in" style="width:18px;height:18px;"></i> Sign in now
+                    </a>
+                    @if (allowSelfRegistration)
+                    {
+                        <a href="@Url.Action("Register", "Account")" class="btn-hero btn-hero--outline-dark">
+                            <i data-lucide="user-plus" style="width:18px;height:18px;"></i> Create account
+                        </a>
+                    }
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="wo-landing-footer">
+        <div class="container">
+            <p>&copy; @DateTime.Now.Year WorkOps | Smart Company Management System</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>if (typeof lucide !== 'undefined') lucide.createIcons();</script>
+</body>
+</html>

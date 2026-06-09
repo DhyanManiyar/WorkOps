@@ -1,0 +1,331 @@
+﻿@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewBag.Title = "Task Management";
+}
+
+<link href="@Url.Content("~/Content/css/pages/admin-modules.css")" rel="stylesheet" />
+<link href="@Url.Content("~/Content/css/pages/admin-tasks.css")" rel="stylesheet" />
+
+@section TopBarActions {
+    <a href="@Url.Action("Board", "Task")" class="btn-topbar-secondary">
+        <i data-lucide="columns" style="width:16px;height:16px;"></i> Kanban Board
+    </a>
+    <a href="@Url.Action("Create", "Task")" class="btn-topbar-primary">
+        <i data-lucide="plus-circle" style="width:16px;height:16px;"></i> Create Task
+    </a>
+}
+
+<div class="wo-page animate-fade-up">
+    <div class="wo-page-header">
+        <div>
+            <h2>Task Management</h2>
+            <p>Manage and track all organizational tasks</p>
+        </div>
+    </div>
+
+    <div class="stats-grid" id="statsRow">
+        <div class="stat-card-premium wo-stat-card">
+            <div class="stat-left">
+                <div class="stat-number" id="totalTasks">0</div>
+                <div class="stat-label">Total Tasks</div>
+            </div>
+            <div class="stat-icon"><i data-lucide="list-todo"></i></div>
+        </div>
+        <div class="stat-card-premium wo-stat-card">
+            <div class="stat-left">
+                <div class="stat-number" id="pendingTasks">0</div>
+                <div class="stat-label">Pending</div>
+            </div>
+            <div class="stat-icon"><i data-lucide="clock"></i></div>
+        </div>
+        <div class="stat-card-premium wo-stat-card">
+            <div class="stat-left">
+                <div class="stat-number" id="completedTasks">0</div>
+                <div class="stat-label">Completed</div>
+            </div>
+            <div class="stat-icon"><i data-lucide="check-circle"></i></div>
+        </div>
+        <div class="stat-card-premium wo-stat-card">
+            <div class="stat-left">
+                <div class="stat-number" id="overdueTasks">0</div>
+                <div class="stat-label">Overdue</div>
+            </div>
+            <div class="stat-icon"><i data-lucide="alert-triangle"></i></div>
+        </div>
+    </div>
+
+    <div class="filter-bar-premium wo-filter-bar">
+        <div class="filter-grid">
+            <div class="filter-group">
+                <label>Department</label>
+                <select id="filterDepartment" class="filter-input form-select">
+                    <option value="">All Departments</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Assigned To</label>
+                <select id="filterEmployee" class="filter-input form-select">
+                    <option value="">All Employees</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Priority</label>
+                <select id="filterPriority" class="filter-input form-select">
+                    <option value="">All Priorities</option>
+                    <option value="1">Low</option>
+                    <option value="2">Medium</option>
+                    <option value="3">High</option>
+                    <option value="4">Critical</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Status</label>
+                <select id="filterStatus" class="filter-input form-select">
+                    <option value="">All Status</option>
+                    <option value="1">Pending</option>
+                    <option value="2">In Progress</option>
+                    <option value="3">Submitted</option>
+                    <option value="4">Approved</option>
+                    <option value="5">Completed</option>
+                </select>
+            </div>
+            <div class="filter-group filter-buttons">
+                <label>&nbsp;</label>
+                <button type="button" class="btn-apply" id="applyFilters">
+                    <i data-lucide="search" style="width:16px;height:16px;"></i> Apply Filters
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="data-table-container-premium">
+        <div class="table-responsive">
+            <table class="employee-table" id="tasksTable">
+                <thead>
+                    <tr>
+                        <th>Task Code</th>
+                        <th>Title</th>
+                        <th>Assigned To</th>
+                        <th>Department</th>
+                        <th>Priority</th>
+                        <th>Due Date</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="tasksTableBody">
+                    <tr>
+                        <td colspan="8" class="text-center py-5">
+                            <div class="spinner-border text-primary" role="status"></div>
+                            <br><span class="text-muted">Loading tasks…</span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <nav>
+            <ul class="pagination" id="pagination"></ul>
+        </nav>
+    </div>
+</div>
+
+@section scripts {
+    <script>
+        let currentPage = 1;
+        let pageSize = 10;
+        let totalTasks = 0;
+        let allTasks = [];
+
+        $(document).ready(function() {
+            loadFilters();
+            loadTasks();
+            loadStatistics();
+
+            $('#applyFilters').click(function() {
+                currentPage = 1;
+                loadTasks();
+                loadStatistics();
+            });
+        });
+
+        function loadFilters() {
+            $.ajax({
+                url: '@Url.Action("GetFilterOptions", "Task")',
+                type: 'GET',
+                success: function(response) {
+                    if (response.departments) {
+                        var deptSelect = $('#filterDepartment');
+                        $.each(response.departments, function(i, d) {
+                            deptSelect.append($('<option></option>').val(d.id).text(d.name));
+                        });
+                    }
+                    if (response.employees) {
+                        var empSelect = $('#filterEmployee');
+                        $.each(response.employees, function(i, e) {
+                            empSelect.append($('<option></option>').val(e.id).text(e.name));
+                        });
+                    }
+                },
+                error: function(xhr) {
+                    console.log('Error loading filters:', xhr.responseText);
+                }
+            });
+        }
+
+        function loadStatistics() {
+            $.ajax({
+                url: '@Url.Action("GetStatistics", "Task")',
+                type: 'GET',
+                success: function(response) {
+                    $('#totalTasks').text(response.totalTasks || 0);
+                    $('#pendingTasks').text(response.pendingTasks || 0);
+                    $('#completedTasks').text(response.completedTasks || 0);
+                    $('#overdueTasks').text(response.overdueTasks || 0);
+                },
+                error: function(xhr) {
+                    console.log('Error loading statistics:', xhr.responseText);
+                }
+            });
+        }
+
+        function loadTasks() {
+            $('#tasksTableBody').html('<tr><td colspan="8" class="text-center py-5"><div class="spinner-border text-primary" role="status"></div><br><span class="text-muted">Loading tasks…</span></td></tr>');
+
+            var params = {
+                DepartmentID: $('#filterDepartment').val(),
+                AssignedTo: $('#filterEmployee').val(),
+                Priority: $('#filterPriority').val(),
+                Status: $('#filterStatus').val()
+            };
+
+            $.ajax({
+                url: '@Url.Action("GetTasks", "Task")',
+                type: 'GET',
+                data: params,
+                success: function(response) {
+                    if (response && response.data) {
+                        allTasks = response.data;
+                        totalTasks = allTasks.length;
+                        displayTasks();
+                        updatePagination();
+                    } else {
+                        $('#tasksTableBody').html('<tr><td colspan="8" class="text-center py-5 text-muted">No tasks found. Click "Create Task" to add one.</td></tr>');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    $('#tasksTableBody').html('<tr><td colspan="8" class="text-center py-5 text-danger">Error loading tasks. Please refresh the page.</td></tr>');
+                }
+            });
+        }
+
+        function displayTasks() {
+            var start = (currentPage - 1) * pageSize;
+            var end = start + pageSize;
+            var pageTasks = allTasks.slice(start, end);
+
+            if (pageTasks.length === 0) {
+                $('#tasksTableBody').html('<tr><td colspan="8" class="text-center py-5 text-muted">No tasks found</td></tr>');
+                return;
+            }
+
+            var html = '';
+            for (var i = 0; i < pageTasks.length; i++) {
+                var task = pageTasks[i];
+
+                var priorityClass = task.Priority == 1 ? 'priority-low' :
+                                   task.Priority == 2 ? 'priority-medium' :
+                                   task.Priority == 3 ? 'priority-high' : 'priority-critical';
+                var priorityText = task.PriorityText || (task.Priority == 1 ? 'Low' : task.Priority == 2 ? 'Medium' : task.Priority == 3 ? 'High' : 'Critical');
+
+                var statusClass = task.Status == 1 ? 'status-pending' :
+                                 task.Status == 2 ? 'status-progress' :
+                                 task.Status == 3 ? 'status-submitted' :
+                                 task.Status == 4 ? 'status-approved' : 'status-completed';
+                var statusText = task.StatusText || (task.Status == 1 ? 'Pending' : task.Status == 2 ? 'In Progress' : task.Status == 3 ? 'Submitted' : task.Status == 4 ? 'Approved' : 'Completed');
+
+                var dueDate = parseServerDate(task.DueDateIso || task.DueDate);
+                var today = new Date();
+                today.setHours(0, 0, 0, 0);
+                var isOverdue = dueDate && dueDate < today && task.Status < 4;
+                var dueDateClass = isOverdue ? 'text-danger fw-bold' : '';
+                var dueDateText = dueDate ? dueDate.toLocaleDateString('en-GB') : 'No date';
+
+                html += '<tr class="task-row">' +
+                    '<td><strong>' + escapeHtml(task.TaskCode || 'N/A') + '</strong></td>' +
+                    '<td>' + escapeHtml(task.Title || 'Untitled') + '</td>' +
+                    '<td>' + escapeHtml(task.AssignedTo || 'Unassigned') + '</td>' +
+                    '<td><span class="dept-badge">' + escapeHtml(task.Department || 'N/A') + '</span></td>' +
+                    '<td><span class="' + priorityClass + '">' + priorityText + '</span></td>' +
+                    '<td class="' + dueDateClass + '">' + dueDateText + '</td>' +
+                    '<td><span class="' + statusClass + '">' + statusText + '</span></td>' +
+                    '<td class="text-nowrap">' +
+                        '<a href="@Url.Action("Details", "Task")/' + task.TaskID + '" class="action-btn view btn-icon" title="View"><i data-lucide="eye" style="width:14px;height:14px;"></i></a>' +
+                        '<a href="@Url.Action("Edit", "Task")/' + task.TaskID + '" class="action-btn edit btn-icon" title="Edit"><i data-lucide="pencil" style="width:14px;height:14px;"></i></a>' +
+                    '</td>' +
+                '</tr>';
+            }
+
+            $('#tasksTableBody').html(html);
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        function updatePagination() {
+            var totalPages = Math.ceil(totalTasks / pageSize);
+            var paginationHtml = '';
+
+            if (totalPages <= 1) {
+                $('#pagination').html('');
+                return;
+            }
+
+            paginationHtml += '<li class="page-item ' + (currentPage == 1 ? 'disabled' : '') + '">' +
+                '<a class="page-link" href="#" onclick="goToPage(' + (currentPage - 1) + '); return false;">Previous</a></li>';
+
+            for (var i = 1; i <= totalPages; i++) {
+                if (i == 1 || i == totalPages || (i >= currentPage - 2 && i <= currentPage + 2)) {
+                    paginationHtml += '<li class="page-item ' + (i == currentPage ? 'active' : '') + '">' +
+                        '<a class="page-link" href="#" onclick="goToPage(' + i + '); return false;">' + i + '</a></li>';
+                } else if (i == currentPage - 3 || i == currentPage + 3) {
+                    paginationHtml += '<li class="page-item disabled"><span class="page-link">…</span></li>';
+                }
+            }
+
+            paginationHtml += '<li class="page-item ' + (currentPage == totalPages ? 'disabled' : '') + '">' +
+                '<a class="page-link" href="#" onclick="goToPage(' + (currentPage + 1) + '); return false;">Next</a></li>';
+
+            $('#pagination').html(paginationHtml);
+        }
+
+        function goToPage(page) {
+            currentPage = page;
+            displayTasks();
+            updatePagination();
+            $('html, body').animate({ scrollTop: 0 }, 300);
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            return String(text).replace(/[&<>]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            });
+        }
+
+        function parseServerDate(value) {
+            if (!value) return null;
+            if (typeof value === 'string') {
+                var msMatch = /\/Date\((\d+)\)\//.exec(value);
+                if (msMatch) {
+                    var ms = parseInt(msMatch[1], 10);
+                    if (!isNaN(ms)) return new Date(ms);
+                }
+                var dt = new Date(value);
+                return isNaN(dt.getTime()) ? null : dt;
+            }
+            var fallback = new Date(value);
+            return isNaN(fallback.getTime()) ? null : fallback;
+        }
+    </script>
+}

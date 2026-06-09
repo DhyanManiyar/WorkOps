@@ -1,0 +1,68 @@
+@model WorkOps.Models.ManagerAssignTaskViewModel
+@{
+    Layout = "~/Views/Shared/_ManagerLayout.cshtml";
+    ViewBag.Title = "Assign Task";
+}
+
+<div class="wo-page">
+    <div class="wo-page-header">
+        <div>
+            <h2>Assign task</h2>
+            <p>Create a new task for a team member</p>
+        </div>
+        <a href="@Url.Action("Tasks", "Manager")" class="btn-topbar-secondary">
+            <i data-lucide="arrow-left" style="width:16px;height:16px;"></i> Back
+        </a>
+    </div>
+
+    <div class="form-section wo-form-section wo-form-card">
+        @using (Html.BeginForm("AssignTask", "Manager", FormMethod.Post, new { @class = "needs-validation" }))
+        {
+            @Html.AntiForgeryToken()
+            @Html.ValidationSummary(true, "", new { @class = "text-danger mb-3" })
+
+            <div class="mb-3">
+                @Html.LabelFor(m => m.Title, new { @class = "form-label fw-semibold" })
+                @Html.TextBoxFor(m => m.Title, new { @class = "form-control", placeholder = "Task title" })
+                @Html.ValidationMessageFor(m => m.Title, "", new { @class = "text-danger" })
+            </div>
+
+            <div class="mb-3">
+                @Html.LabelFor(m => m.Description, new { @class = "form-label fw-semibold" })
+                @Html.TextAreaFor(m => m.Description, new { @class = "form-control", rows = 3 })
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    @Html.LabelFor(m => m.AssignedTo, "Team Member", new { @class = "form-label fw-semibold" })
+                    @Html.DropDownListFor(m => m.AssignedTo, Model.TeamMembers, "Select team member", new { @class = "form-select" })
+                    @Html.ValidationMessageFor(m => m.AssignedTo, "", new { @class = "text-danger" })
+                </div>
+                <div class="col-md-6 mb-3">
+                    @Html.LabelFor(m => m.Priority, new { @class = "form-label fw-semibold" })
+                    @Html.DropDownListFor(m => m.Priority, Model.Priorities, new { @class = "form-select" })
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    @Html.LabelFor(m => m.DueDate, new { @class = "form-label fw-semibold" })
+                    @Html.TextBoxFor(m => m.DueDate, "{0:yyyy-MM-dd}", new { @class = "form-control", type = "date" })
+                </div>
+                <div class="col-md-6 mb-3">
+                    @Html.LabelFor(m => m.EstimatedHours, new { @class = "form-label fw-semibold" })
+                    @Html.TextBoxFor(m => m.EstimatedHours, new { @class = "form-control", type = "number", step = "0.5", min = "0" })
+                </div>
+            </div>
+
+            @Html.HiddenFor(m => m.DepartmentID)
+
+            <div class="d-flex gap-2 mt-3">
+                <button type="submit" class="btn-topbar-primary border-0" style="cursor:pointer;">
+                    <i data-lucide="send" style="width:16px;height:16px;"></i> Assign task
+                </button>
+                <a href="@Url.Action("Tasks", "Manager")" class="btn-topbar-secondary" style="text-decoration:none;">Cancel</a>
+            </div>
+        }
+    </div>
+</div>

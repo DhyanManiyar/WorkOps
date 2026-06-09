@@ -1,0 +1,119 @@
+﻿@using System.Linq
+@model List<WorkOps.Models.LeaveRequestViewModel>
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewBag.Title = "Leave Requests";
+    var currentStatus = ViewBag.CurrentStatus as int?;
+}
+
+<link href="@Url.Content("~/Content/css/pages/admin-modules.css")" rel="stylesheet" />
+<link href="@Url.Content("~/Content/css/pages/admin-attendance-leave.css")" rel="stylesheet" />
+
+@section TopBarActions {
+    <a href="@Url.Action("Index", "Leave")" class="btn-topbar-secondary">
+        <i data-lucide="arrow-left" style="width:16px;height:16px;"></i> Dashboard
+    </a>
+    <a href="@Url.Action("Create", "Leave")" class="btn-topbar-primary">
+        <i data-lucide="plus-circle" style="width:16px;height:16px;"></i> New Request
+    </a>
+}
+
+<div class="wo-page animate-fade-up">
+    <div class="wo-page-header">
+        <div>
+            <h2>Leave Requests</h2>
+            <p>View and manage all leave applications</p>
+        </div>
+    </div>
+
+    <div class="status-filter">
+        <a href="@Url.Action("Requests", "Leave")" class="filter-btn @(currentStatus == null ? "active" : "")">All</a>
+        <a href="@Url.Action("Requests", "Leave", new { status = 1 })" class="filter-btn @(currentStatus == 1 ? "active" : "")">Pending</a>
+        <a href="@Url.Action("Requests", "Leave", new { status = 2 })" class="filter-btn @(currentStatus == 2 ? "active" : "")">Approved</a>
+        <a href="@Url.Action("Requests", "Leave", new { status = 3 })" class="filter-btn @(currentStatus == 3 ? "active" : "")">Rejected</a>
+    </div>
+
+    <div class="data-table-container-premium">
+        @if (Model.Any())
+        {
+            <div class="table-responsive">
+                <table class="employee-table">
+                    <thead>
+                        <tr>
+                            <th>Employee</th>
+                            <th>Leave Type</th>
+                            <th>Duration</th>
+                            <th>Days</th>
+                            <th>Reason</th>
+                            <th>Applied</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr class="request-row" onclick="location.href='@Url.Action("Details", "Leave", new { id = item.LeaveRequestID })'">
+                                <td>
+                                    <div class="employee-name">@item.EmployeeName</div>
+                                    <div class="employee-id">@item.Department</div>
+                                </td>
+                                <td>@item.LeaveTypeName</td>
+                                <td style="font-size:13px;color:var(--wo-text-secondary);">@item.StartDate.ToString("dd/MM/yyyy") – @item.EndDate.ToString("dd/MM/yyyy")</td>
+                                <td><span class="dept-badge">@item.TotalDays</span></td>
+                                <td style="max-width:200px;font-size:13px;">
+                                    @if (item.Reason?.Length > 40)
+                                    {
+                                        @(item.Reason.Substring(0, 40) + "...")
+                                    }
+                                    else
+                                    {
+                                        @item.Reason
+                                    }
+                                </td>
+                                <td style="font-size:13px;">@item.AppliedDate.ToString("dd MMM yyyy")</td>
+                                <td>
+                                    <span class="badge bg-@item.StatusColor">@item.StatusText</span>
+                                </td>
+                                <td onclick="event.stopPropagation();">
+                                    <div class="leave-actions-inline">
+                                        @if (item.Status == 1)
+                                        {
+                                            <a href="@Url.Action("Approve", "Leave", new { id = item.LeaveRequestID })" class="btn btn-sm btn-success"
+                                               data-wo-confirm="Approve this leave request?"
+                                               data-wo-confirm-title="Approve leave"
+                                               data-wo-confirm-variant="success"
+                                               data-wo-confirm-ok="Approve" title="Approve">
+                                                <i data-lucide="check" style="width:14px;height:14px;"></i>
+                                            </a>
+                                            <a href="@Url.Action("Reject", "Leave", new { id = item.LeaveRequestID })" class="btn btn-sm btn-danger"
+                                               data-wo-confirm="Reject this leave request?"
+                                               data-wo-confirm-title="Reject leave"
+                                               data-wo-confirm-variant="danger"
+                                               data-wo-confirm-ok="Reject" title="Reject">
+                                                <i data-lucide="x" style="width:14px;height:14px;"></i>
+                                            </a>
+                                        }
+                                        <a href="@Url.Action("Details", "Leave", new { id = item.LeaveRequestID })" class="action-btn view" title="View">
+                                            <i data-lucide="eye" style="width:14px;height:14px;"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="wo-empty-state">
+                <i data-lucide="inbox" style="width:48px;height:48px;"></i>
+                <p>No leave requests found</p>
+                <a href="@Url.Action("Create", "Leave")" class="btn-topbar-primary" style="display:inline-flex;align-items:center;gap:8px;padding:10px 18px;margin-top:12px;text-decoration:none;">
+                    <i data-lucide="plus" style="width:16px;height:16px;"></i> Create New Request
+                </a>
+            </div>
+        }
+    </div>
+</div>

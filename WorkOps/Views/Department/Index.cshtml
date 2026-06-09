@@ -1,0 +1,180 @@
+﻿@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewBag.Title = "Department Management";
+}
+
+<link href="@Url.Content("~/Content/css/pages/admin-modules.css")" rel="stylesheet" />
+
+@section TopBarActions {
+    <a href="@Url.Action("Export", "Department")" class="btn-topbar-secondary">
+        <i data-lucide="download" style="width:16px;height:16px;"></i> Export
+    </a>
+    <a href="@Url.Action("Create", "Department")" class="btn-topbar-primary">
+        <i data-lucide="plus" style="width:16px;height:16px;"></i> Add Department
+    </a>
+}
+
+<div class="wo-page animate-fade-up">
+    <div class="wo-page-header">
+        <div>
+            <h2>Departments</h2>
+            <p>Manage organizational structure and department heads</p>
+        </div>
+    </div>
+
+    <div class="dept-grid-toolbar">
+        <input type="text" id="deptSearchInput" class="filter-input" placeholder="Search departments by name or code…" style="flex:1; min-width:200px;">
+    </div>
+
+    <div class="row" id="departmentsGrid">
+        <div class="col-12 text-center py-5">
+            <div class="spinner-border text-primary" role="status" style="width:2rem;height:2rem;color:var(--wo-primary)!important;">
+                <span class="visually-hidden">Loading…</span>
+            </div>
+            <p class="text-muted mt-3 mb-0">Loading departments…</p>
+        </div>
+    </div>
+</div>
+
+<div class="toast toast-success" id="successToast" data-bs-autohide="true" data-bs-delay="3000">
+    <div class="toast-body d-flex align-items-center">
+        <i class="fas fa-check-circle me-2"></i>
+        <span id="toastMessage"></span>
+    </div>
+</div>
+
+@section scripts {
+    <script>
+        var allDepartments = [];
+
+        $(document).ready(function() {
+            loadDepartments();
+            $('#deptSearchInput').on('input', function() {
+                filterAndDisplay();
+            });
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        });
+
+        function loadDepartments() {
+            $.ajax({
+                url: '@Url.Action("GetDepartments", "Department")',
+                type: 'GET',
+                success: function(response) {
+                    allDepartments = response.data || [];
+                    filterAndDisplay();
+                },
+                error: function() {
+                    $('#departmentsGrid').html('<div class="col-12"><div class="wo-empty"><p class="text-danger">Error loading departments</p></div></div>');
+                }
+            });
+        }
+
+        function filterAndDisplay() {
+            var q = $('#deptSearchInput').val().toLowerCase();
+            var filtered = allDepartments;
+            if (q) {
+                filtered = allDepartments.filter(function(d) {
+                    return (d.DepartmentName && d.DepartmentName.toLowerCase().indexOf(q) >= 0) ||
+                        (d.DepartmentCode && d.DepartmentCode.toLowerCase().indexOf(q) >= 0);
+                });
+            }
+            displayDepartments(filtered);
+        }
+
+        function displayDepartments(departments) {
+            if (!departments || departments.length === 0) {
+                $('#departmentsGrid').html('<div class="col-12"><div class="wo-empty"><i data-lucide="building-2"></i><p>No departments found. Click "Add Department" to create one.</p></div></div>');
+                if (typeof lucide !== 'undefined') lucide.createIcons();
+                return;
+            }
+
+            var html = '';
+            for (var i = 0; i < departments.length; i++) {
+                var dept = departments[i];
+                html += `
+                    <div class="col-xl-4 col-lg-6 col-md-6 mb-4">
+                        <div class="dept-card">
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <div class="dept-icon"><i class="fas fa-building"></i></div>
+                                <span class="${dept.IsActive ? 'badge-active-dept' : 'badge-inactive-dept'}">${dept.IsActive ? 'Active' : 'Inactive'}</span>
+                            </div>
+                            <h5 class="mb-1 fw-semibold">${escapeHtml(dept.DepartmentName)}</h5>
+                            <p class="text-muted small mb-2">Code: ${escapeHtml(dept.DepartmentCode)}</p>
+                            <p class="small text-muted mb-3" style="min-height:40px;">${escapeHtml(dept.Description) || 'No description'}</p>
+                            <div class="d-flex flex-wrap gap-2 mb-3">
+                                <span class="stat-badge"><i class="fas fa-users me-1"></i>${dept.EmployeeCount} employees</span>
+                                <span class="stat-badge"><i class="fas fa-user-tie me-1"></i>${escapeHtml(dept.DepartmentHead)}</span>
+                            </div>
+                            <div class="d-flex gap-2 pt-3 border-top">
+                                <a href="@Url.Action("Details", "Department")/${dept.DepartmentID}" class="btn btn-sm btn-outline-primary btn-icon-sm" title="View"><i class="fas fa-eye"></i></a>
+                                <a href="@Url.Action("Edit", "Department")/${dept.DepartmentID}" class="btn btn-sm btn-outline-warning btn-icon-sm" title="Edit"><i class="fas fa-edit"></i></a>
+                                <button type="button" onclick="toggleStatus(${dept.DepartmentID}, ${dept.IsActive})" class="btn btn-sm btn-outline-secondary btn-icon-sm" title="${dept.IsActive ? 'Deactivate' : 'Activate'}"><i class="fas ${dept.IsActive ? 'fa-ban' : 'fa-check'}"></i></button>
+                                <button type="button" onclick="deleteDepartment(${dept.DepartmentID})" class="btn btn-sm btn-outline-danger btn-icon-sm" title="Delete"><i class="fas fa-trash"></i></button>
+                            </div>
+                        </div>
+                    </div>`;
+            }
+            $('#departmentsGrid').html(html);
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            return String(text).replace(/[&<>]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            });
+        }
+
+        function showToast(message, isSuccess) {
+            var toast = new bootstrap.Toast(document.getElementById('successToast'));
+            $('#toastMessage').text(message);
+            toast.show();
+            setTimeout(function() { location.reload(); }, 2000);
+        }
+
+        function toggleStatus(id, currentStatus) {
+            var action = currentStatus ? 'deactivate' : 'activate';
+            woConfirm({
+                title: 'Update department',
+                message: 'Are you sure you want to ' + action + ' this department?',
+                variant: 'primary',
+                confirmText: 'Continue',
+                onConfirm: function () {
+                    $.ajax({
+                        url: '@Url.Action("ToggleStatus", "Department")',
+                        type: 'POST',
+                        data: { id: id },
+                        success: function(response) {
+                            if (response.success) showToast(response.message);
+                            else showToast(response.message, false);
+                        },
+                        error: function() { showToast('Error toggling department status', false); }
+                    });
+                }
+            });
+        }
+
+        function deleteDepartment(id) {
+            woConfirm({
+                title: 'Delete department',
+                message: 'Delete this department? This action cannot be undone.',
+                variant: 'danger',
+                confirmText: 'Delete',
+                onConfirm: function () {
+                    $.ajax({
+                        url: '@Url.Action("Delete", "Department")',
+                        type: 'POST',
+                        data: { id: id },
+                        success: function(response) {
+                            if (response.success) showToast(response.message);
+                            else showToast(response.message, false);
+                        },
+                        error: function() { showToast('Error deleting department', false); }
+                    });
+                }
+            });
+        }
+    </script>
+}

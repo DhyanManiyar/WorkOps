@@ -1,0 +1,204 @@
+@model WorkOps.Models.BulkMarkAttendanceViewModel
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewBag.Title = "Bulk Mark Attendance";
+}
+
+<link href="@Url.Content("~/Content/css/pages/admin-modules.css")" rel="stylesheet" />
+<link href="@Url.Content("~/Content/css/pages/admin-attendance-leave.css")" rel="stylesheet" />
+
+@section TopBarActions {
+    <a href="@Url.Action("Index", "Attendance")" class="btn-topbar-secondary">
+        <i data-lucide="arrow-left" style="width:16px;height:16px;"></i> Back to Dashboard
+    </a>
+}
+
+<div class="wo-page animate-fade-up">
+    <div class="wo-page-header">
+        <div>
+            <h2>Bulk Mark Attendance</h2>
+            <p>Select multiple employees and apply the same attendance status for a date</p>
+        </div>
+    </div>
+
+    @using (Html.BeginForm("BulkMark", "Attendance", FormMethod.Post, new { id = "bulkMarkForm", data_no_loading = "true" }))
+    {
+        @Html.AntiForgeryToken()
+        if (!ViewData.ModelState.IsValid)
+        {
+            @Html.ValidationSummary(false, "", new { @class = "alert alert-danger wo-validation-summary" })
+        }
+
+        <div class="data-card detail-card wo-detail-card mb-4">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">Attendance Date</label>
+                    @Html.TextBoxFor(m => m.AttendanceDate, "{0:yyyy-MM-dd}", new { @class = "form-control", type = "date", id = "attendanceDate" })
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">Status</label>
+                    @Html.DropDownListFor(m => m.Status, Model.StatusOptions, new { @class = "form-select", id = "bulkStatus" })
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">Notes (optional)</label>
+                    @Html.TextBoxFor(m => m.Notes, new { @class = "form-control", placeholder = "Applied in bulk" })
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-semibold">Check In</label>
+                    @Html.TextBoxFor(m => m.CheckInTime, new { @class = "form-control", type = "time", id = "bulkCheckIn" })
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-semibold">Check Out</label>
+                    @Html.TextBoxFor(m => m.CheckOutTime, new { @class = "form-control", type = "time", id = "bulkCheckOut" })
+                </div>
+                <div class="col-md-6 d-flex align-items-end gap-2 flex-wrap">
+                    <button type="button" class="btn btn-outline-secondary btn-sm" id="selectAllBtn">Select all</button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm" id="clearAllBtn">Clear selection</button>
+                    <span class="text-muted small" id="selectedCount">0 selected</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="data-table-container-premium">
+            <div class="wo-card-header" style="padding:16px 20px 0;">
+                <h5>Employees</h5>
+            </div>
+            <div class="table-responsive">
+                <table class="employee-table" id="bulkEmployeeTable">
+                    <thead>
+                        <tr>
+                            <th style="width:48px;">
+                                <input type="checkbox" id="masterCheck" class="form-check-input" title="Select all" />
+                            </th>
+                            <th>Employee</th>
+                            <th>Department</th>
+                            <th>Current status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (var i = 0; i < Model.Employees.Count; i++)
+                        {
+                            var row = Model.Employees[i];
+                            <tr>
+                                <td>
+                                    <input type="checkbox"
+                                           class="form-check-input emp-check"
+                                           name="SelectedEmployeeIds"
+                                           value="@row.EmployeeID"
+                                           @(row.IsSelected ? "checked" : "") />
+                                </td>
+                                <td>
+                                    <div class="employee-info">
+                                        <div class="avatar-sm">@row.Initials</div>
+                                        <div class="employee-name">@row.EmployeeName</div>
+                                    </div>
+                                </td>
+                                <td><span class="dept-badge">@row.Department</span></td>
+                                <td>
+                                    @{
+                                        var badgeClass = row.CurrentStatus == 1 ? "present-badge" :
+                                            row.CurrentStatus == 2 ? "absent-badge" :
+                                            row.CurrentStatus == 3 ? "halfday-badge" : "leave-badge";
+                                    }
+                                    <span class="@badgeClass">@row.CurrentStatusText</span>
+                                    @if (row.HasExistingRecord)
+                                    {
+                                        <span class="text-muted small ms-1">(saved)</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-end gap-2 mt-4">
+            <a href="@Url.Action("Index", "Attendance")" class="btn btn-light">Cancel</a>
+            <button type="button" class="btn btn-primary" id="btnBulkSave">
+                <i data-lucide="users" style="width:16px;height:16px;"></i> Save bulk attendance
+            </button>
+        </div>
+    }
+</div>
+
+@section scripts {
+    <script>
+        $(function () {
+            function updateSelectedCount() {
+                var count = $('.emp-check:checked').length;
+                $('#selectedCount').text(count + ' selected');
+                $('#masterCheck').prop('checked', count > 0 && count === $('.emp-check').length);
+            }
+
+            $('#masterCheck').on('change', function () {
+                $('.emp-check').prop('checked', this.checked);
+                updateSelectedCount();
+            });
+
+            $(document).on('change', '.emp-check', updateSelectedCount);
+
+            $('#selectAllBtn').on('click', function () {
+                $('.emp-check').prop('checked', true);
+                updateSelectedCount();
+            });
+
+            $('#clearAllBtn').on('click', function () {
+                $('.emp-check').prop('checked', false);
+                updateSelectedCount();
+            });
+
+            $('#attendanceDate').on('change', function () {
+                var date = $(this).val();
+                if (date) window.location.href = '@Url.Action("BulkMark", "Attendance")?date=' + date;
+            });
+
+            $('#bulkStatus').on('change', function () {
+                var status = $(this).val();
+                if (status === '2' || status === '4') {
+                    $('#bulkCheckIn, #bulkCheckOut').prop('disabled', true).val('');
+                } else {
+                    $('#bulkCheckIn, #bulkCheckOut').prop('disabled', false);
+                    if (!$('#bulkCheckIn').val()) $('#bulkCheckIn').val('09:00');
+                    if (!$('#bulkCheckOut').val()) $('#bulkCheckOut').val('18:00');
+                }
+            }).trigger('change');
+
+            updateSelectedCount();
+
+            $('#btnBulkSave').on('click', function () {
+                var selected = $('.emp-check:checked').length;
+                if (selected === 0) {
+                    if (window.WorkOpsUI && WorkOpsUI.showToast) {
+                        WorkOpsUI.showToast('Please select at least one employee.', 'error');
+                    } else {
+                        alert('Please select at least one employee.');
+                    }
+                    return;
+                }
+
+                if (typeof woConfirm !== 'function') {
+                    HTMLFormElement.prototype.submit.call(document.getElementById('bulkMarkForm'));
+                    return;
+                }
+
+                woConfirm({
+                    title: 'Confirm bulk attendance',
+                    message: 'Save attendance for ' + selected + ' selected employee(s)?',
+                    variant: 'primary',
+                    confirmText: 'Save attendance',
+                    onConfirm: function () {
+                        var form = document.getElementById('bulkMarkForm');
+                        if (typeof form.checkValidity === 'function' && !form.checkValidity()) {
+                            form.reportValidity();
+                            return;
+                        }
+                        HTMLFormElement.prototype.submit.call(form);
+                    }
+                });
+            });
+
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        });
+    </script>
+}

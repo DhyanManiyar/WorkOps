@@ -1,0 +1,97 @@
+@model WorkOps.Models.HolidayIndexViewModel
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewBag.Title = "Holiday Calendar";
+}
+
+<link href="@Url.Content("~/Content/css/pages/admin-modules.css")" rel="stylesheet" />
+
+@section TopBarActions {
+    <a href="@Url.Action("Create", "Holiday")" class="btn-topbar-primary">
+        <i data-lucide="plus-circle" style="width:16px;height:16px;"></i> Add Holiday
+    </a>
+}
+
+<div class="wo-page animate-fade-up">
+    <div class="wo-page-header">
+        <div>
+            <h2>Holiday Calendar</h2>
+            <p>Manage company holidays for payroll and attendance</p>
+        </div>
+    </div>
+
+    <div class="filter-bar-premium wo-filter-bar">
+        <form method="get" action="@Url.Action("Index", "Holiday")" class="filter-grid">
+            <div class="filter-group" style="max-width:220px;">
+                <label>Year</label>
+                @Html.DropDownList("year", (SelectList)ViewBag.Years, new { @class = "filter-input form-select", onchange = "this.form.submit()" })
+            </div>
+        </form>
+    </div>
+
+    <div class="data-table-container-premium">
+        @if (Model.Holidays != null && Model.Holidays.Any())
+        {
+            <div class="table-responsive">
+                <table class="employee-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Holiday</th>
+                            <th>Description</th>
+                            <th>Type</th>
+                            <th class="col-actions">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.Holidays)
+                        {
+                            <tr>
+                                <td><strong>@item.HolidayDate.ToString("dd MMM yyyy")</strong></td>
+                                <td>@item.HolidayName</td>
+                                <td class="text-muted">@(string.IsNullOrWhiteSpace(item.Description) ? "-" : item.Description)</td>
+                                <td>
+                                    @if (item.IsRecurring)
+                                    {
+                                        <span class="role-badge role-manager">Recurring</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="role-badge role-employee">One-time</span>
+                                    }
+                                </td>
+                                <td class="col-actions">
+                                    <div class="action-group">
+                                        <a href="@Url.Action("Edit", "Holiday", new { id = item.HolidayID })" class="action-btn edit" title="Edit">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        @using (Html.BeginForm("Delete", "Holiday", FormMethod.Post, new { @class = "d-inline" }))
+                                        {
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@item.HolidayID" />
+                                            <input type="hidden" name="year" value="@Model.Year" />
+                                            <button type="submit" class="action-btn delete" title="Delete"
+                                                    data-wo-confirm="Delete this holiday? This cannot be undone."
+                                                    data-wo-confirm-title="Delete holiday"
+                                                    data-wo-confirm-variant="danger"
+                                                    data-wo-confirm-ok="Delete">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="wo-empty-state p-5 text-center text-muted">
+                <i data-lucide="calendar" style="width:42px;height:42px;opacity:.4;"></i>
+                <p class="mb-0 mt-2">No holidays configured for this year.</p>
+            </div>
+        }
+    </div>
+</div>

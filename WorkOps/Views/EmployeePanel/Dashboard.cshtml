@@ -1,0 +1,177 @@
+@using System.Linq
+@model WorkOps.Models.EmployeeDashboardViewModel
+@{
+    Layout = "~/Views/Shared/_EmployeeLayout.cshtml";
+    ViewBag.Title = "My Dashboard";
+}
+
+<link href="@Url.Content("~/Content/css/pages/admin-dashboard.css")" rel="stylesheet" />
+
+@section TopBarActions {
+    @if (Model.CanCheckIn)
+    {
+        using (Html.BeginForm("CheckIn", "EmployeePanel", FormMethod.Post, new { style = "display:inline" }))
+        {
+            @Html.AntiForgeryToken()
+            <button type="submit" class="btn-topbar-primary border-0">
+                <i data-lucide="log-in" style="width:16px;height:16px;"></i> Check In
+            </button>
+        }
+    }
+    else if (Model.CanCheckOut)
+    {
+        using (Html.BeginForm("CheckOut", "EmployeePanel", FormMethod.Post, new { style = "display:inline" }))
+        {
+            @Html.AntiForgeryToken()
+            <button type="submit" class="btn-topbar-primary border-0" style="background:var(--wo-success);">
+                <i data-lucide="log-out" style="width:16px;height:16px;"></i> Check Out
+            </button>
+        }
+    }
+}
+
+<div class="wo-dash animate-fade-up">
+    <header class="wo-dash-hero">
+        <div class="wo-dash-hero__greeting">
+            <h2>Hello, @Model.EmployeeName</h2>
+            <p>@Model.Position &middot; @Model.DepartmentName</p>
+            <div class="mt-2 d-flex flex-wrap gap-2 align-items-center">
+                <span class="badge" style="background:#eff6ff;color:#1d4ed8;font-weight:500;">Today: @Model.TodayAttendanceStatus</span>
+                @if (Model.TodayCheckIn.HasValue)
+                {
+                    <span class="small text-muted">In: @Model.TodayCheckIn.Value.ToString("hh:mm tt")</span>
+                }
+                @if (Model.TodayCheckOut.HasValue)
+                {
+                    <span class="small text-muted">Out: @Model.TodayCheckOut.Value.ToString("hh:mm tt")</span>
+                }
+            </div>
+        </div>
+        <div class="wo-dash-hero__meta">
+            <div class="wo-dash-hero__stat">
+                <div class="wo-dash-hero__stat-value">@Model.PendingTasks</div>
+                <div class="wo-dash-hero__stat-label">Pending tasks</div>
+            </div>
+            <div class="wo-dash-hero__stat">
+                <div class="wo-dash-hero__stat-value">@Model.AttendanceRateMonth%</div>
+                <div class="wo-dash-hero__stat-label">Attendance MTD</div>
+            </div>
+        </div>
+    </header>
+
+    <div class="wo-dash-stats">
+        <article class="wo-dash-stat">
+            <div class="wo-dash-stat__body">
+                <div class="wo-dash-stat__value">@Model.PendingTasks</div>
+                <div class="wo-dash-stat__label">Pending tasks</div>
+                <span class="wo-dash-stat__hint wo-dash-stat__hint--amber">
+                    <i data-lucide="clock" style="width:12px;height:12px;"></i> To start
+                </span>
+            </div>
+            <div class="wo-dash-stat__icon wo-dash-stat__icon--amber">
+                <i data-lucide="clock"></i>
+            </div>
+        </article>
+        <article class="wo-dash-stat">
+            <div class="wo-dash-stat__body">
+                <div class="wo-dash-stat__value">@Model.InProgressTasks</div>
+                <div class="wo-dash-stat__label">In progress</div>
+                <span class="wo-dash-stat__hint wo-dash-stat__hint--neutral">
+                    <i data-lucide="loader" style="width:12px;height:12px;"></i> Active work
+                </span>
+            </div>
+            <div class="wo-dash-stat__icon wo-dash-stat__icon--blue">
+                <i data-lucide="loader"></i>
+            </div>
+        </article>
+        <article class="wo-dash-stat">
+            <div class="wo-dash-stat__body">
+                <div class="wo-dash-stat__value">@Model.AttendanceRateMonth%</div>
+                <div class="wo-dash-stat__label">Attendance (MTD)</div>
+                <span class="wo-dash-stat__hint wo-dash-stat__hint--up">
+                    <i data-lucide="calendar-check" style="width:12px;height:12px;"></i> This month
+                </span>
+            </div>
+            <div class="wo-dash-stat__icon wo-dash-stat__icon--green">
+                <i data-lucide="calendar-check"></i>
+            </div>
+        </article>
+        <article class="wo-dash-stat">
+            <div class="wo-dash-stat__body">
+                <div class="wo-dash-stat__value">@Model.TotalLeaveRemaining</div>
+                <div class="wo-dash-stat__label">Leave days left</div>
+                <span class="wo-dash-stat__hint wo-dash-stat__hint--neutral">
+                    <i data-lucide="palmtree" style="width:12px;height:12px;"></i> All types
+                </span>
+            </div>
+            <div class="wo-dash-stat__icon wo-dash-stat__icon--purple">
+                <i data-lucide="palmtree"></i>
+            </div>
+        </article>
+    </div>
+
+    <div class="wo-dash-charts">
+        <div class="wo-dash-panel">
+            <div class="wo-dash-panel__head">
+                <h3 class="wo-dash-panel__title">
+                    <i data-lucide="list-todo"></i> Recent tasks
+                </h3>
+                <a href="@Url.Action("Tasks", "EmployeePanel")" class="wo-dash-panel__link">View all</a>
+            </div>
+            <div class="wo-dash-panel__body wo-dash-panel__body--flush">
+                @if (Model.RecentTasks == null || !Model.RecentTasks.Any())
+                {
+                    <p class="text-muted mb-0 p-3">No tasks assigned yet.</p>
+                }
+                else
+                {
+                    foreach (var t in Model.RecentTasks)
+                    {
+                        <div class="team-row">
+                            <div class="flex-grow-1 min-width-0">
+                                <a href="@Url.Action("TaskDetails", "EmployeePanel", new { id = t.TaskID })" class="wo-list-link">@t.Title</a>
+                                <div class="small text-muted">@t.TaskCode &middot; Due @t.DueDate.ToString("dd/MM/yyyy")</div>
+                            </div>
+                            <span class="badge bg-@t.StatusColor">@t.StatusText</span>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+        <div class="wo-dash-panel">
+            <div class="wo-dash-panel__head">
+                <h3 class="wo-dash-panel__title">
+                    <i data-lucide="wallet"></i> Leave balances (@DateTime.Now.Year)
+                </h3>
+            </div>
+            <div class="wo-dash-panel__body">
+                @if (Model.LeaveBalances == null || !Model.LeaveBalances.Any())
+                {
+                    <p class="text-muted small mb-3">No leave balances on file.</p>
+                }
+                else
+                {
+                    foreach (var b in Model.LeaveBalances)
+                    {
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between small mb-1">
+                                <span>@b.LeaveType</span>
+                                <strong>@b.RemainingDays / @b.TotalDays days</strong>
+                            </div>
+                            <div class="progress progress-custom">
+                                <div class="progress-bar" style="width: @b.UsagePercentage%;background:var(--wo-primary);"></div>
+                            </div>
+                        </div>
+                    }
+                }
+                <a href="@Url.Action("ApplyLeave", "EmployeePanel")" class="btn-emp-primary">
+                    <i data-lucide="plus" style="width:16px;height:16px;"></i> Apply leave
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+<script>if (typeof lucide !== 'undefined') lucide.createIcons();</script>
+}

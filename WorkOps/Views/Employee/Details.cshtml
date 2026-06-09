@@ -1,0 +1,153 @@
+@model WorkOps.Models.EmployeeDetailsViewModel
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewBag.Title = "Employee Details";
+}
+
+<link href="@Url.Content("~/Content/css/pages/admin-modules.css")" rel="stylesheet" />
+
+@section TopBarActions {
+    <a href="@Url.Action("Edit", "Employee", new { id = Model.EmployeeID })" class="btn-topbar-primary">
+        <i data-lucide="pencil" style="width:16px;height:16px;"></i> Edit
+    </a>
+    <a href="@Url.Action("Index", "Employee")" class="btn-topbar-secondary">
+        <i data-lucide="arrow-left" style="width:16px;height:16px;"></i> Back
+    </a>
+}
+
+<div class="wo-page animate-fade-up">
+    <div class="wo-page-header">
+        <div class="d-flex align-items-center gap-3">
+            @if (!string.IsNullOrEmpty(Model.ProfilePicture))
+            {
+                <img src="@Url.Action("ProfilePhoto", "Employee", new { id = Model.EmployeeID })" alt="@Model.FullName" class="rounded" style="width:64px;height:64px;object-fit:cover;border:2px solid var(--wo-border);" />
+            }
+            else
+            {
+                <div class="employee-avatar-premium" style="width:64px;height:64px;font-size:20px;">@Model.Initials</div>
+            }
+            <div>
+                <h2 class="mb-1">@Model.FullName</h2>
+                <p class="mb-0">@Model.Position &middot; <span class="dept-tag" title="@Model.Department">@Model.Department</span></p>
+            </div>
+        </div>
+        <div>
+            @if (Model.IsActive)
+            {
+                <span class="badge-active">Active</span>
+            }
+            else
+            {
+                <span class="badge-inactive">Inactive</span>
+            }
+        </div>
+    </div>
+
+    <div class="stats-grid mb-4">
+        <div class="stat-card-premium wo-stat-card">
+            <div class="stat-left">
+                <div class="stat-number">@Model.TotalTasks</div>
+                <div class="stat-label">Total Tasks</div>
+            </div>
+            <div class="stat-icon"><i data-lucide="list-todo"></i></div>
+        </div>
+        <div class="stat-card-premium wo-stat-card">
+            <div class="stat-left">
+                <div class="stat-number">@Model.CompletedTasks</div>
+                <div class="stat-label">Completed</div>
+            </div>
+            <div class="stat-icon"><i data-lucide="check-circle"></i></div>
+        </div>
+        <div class="stat-card-premium wo-stat-card">
+            <div class="stat-left">
+                <div class="stat-number">@Model.PendingTasks</div>
+                <div class="stat-label">Pending</div>
+            </div>
+            <div class="stat-icon"><i data-lucide="clock"></i></div>
+        </div>
+        <div class="stat-card-premium wo-stat-card">
+            <div class="stat-left">
+                <div class="stat-number">@Model.AttendanceRate.ToString("F0")%</div>
+                <div class="stat-label">Attendance (MTD)</div>
+            </div>
+            <div class="stat-icon"><i data-lucide="calendar-check"></i></div>
+        </div>
+    </div>
+
+    <div class="row g-3">
+        <div class="col-lg-6">
+            <div class="detail-card wo-detail-card h-100">
+                <h5 class="wo-detail-card__title"><i class="fas fa-user"></i> Personal</h5>
+                <div class="info-row">
+                    <div class="info-label">Email</div>
+                    <div class="info-value">@Model.Email</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">Phone</div>
+                    <div class="info-value">@(string.IsNullOrWhiteSpace(Model.Phone) ? "-" : Model.Phone)</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">Date of birth</div>
+                    <div class="info-value">@(Model.DateOfBirth.HasValue ? Model.DateOfBirth.Value.ToString("dd MMMM yyyy") : "-")</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">Address</div>
+                    <div class="info-value">@(string.IsNullOrWhiteSpace(Model.Address) ? "-" : Model.Address)</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="detail-card wo-detail-card h-100">
+                <h5 class="wo-detail-card__title"><i class="fas fa-briefcase"></i> Employment</h5>
+                <div class="info-row">
+                    <div class="info-label">Department</div>
+                    <div class="info-value"><span class="dept-tag" title="@Model.Department">@Model.Department</span></div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">Position</div>
+                    <div class="info-value">@Model.Position</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">Manager</div>
+                    <div class="info-value">@Model.Manager</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">Role</div>
+                    <div class="info-value">
+                        @{
+                            var roleClass = Model.Role == "Admin" ? "role-admin" : Model.Role == "Manager" ? "role-manager" : "role-employee";
+                        }
+                        <span class="role-badge @roleClass">@Model.Role</span>
+                    </div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">Joining date</div>
+                    <div class="info-value">@Model.JoiningDate.ToString("dd MMMM yyyy")</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">Leaves approved</div>
+                    <div class="info-value"><strong>@Model.TotalLeavesTaken</strong></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12">
+            <div class="detail-card wo-detail-card">
+                <h5 class="wo-detail-card__title"><i class="fas fa-phone-alt"></i> Emergency Contact</h5>
+                <div class="info-row">
+                    <div class="info-label">Contact name</div>
+                    <div class="info-value">@(string.IsNullOrWhiteSpace(Model.EmergencyContact) ? "-" : Model.EmergencyContact)</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">Contact phone</div>
+                    <div class="info-value">@(string.IsNullOrWhiteSpace(Model.EmergencyPhone) ? "-" : Model.EmergencyPhone)</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <script>
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+    </script>
+}

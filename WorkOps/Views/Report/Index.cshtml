@@ -1,0 +1,208 @@
+@using System.Linq
+@model WorkOps.Models.ReportsIndexViewModel
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewBag.Title = "Reports & Analytics";
+}
+
+<link href="@Url.Content("~/Content/css/pages/admin-modules.css")" rel="stylesheet" />
+<link href="@Url.Content("~/Content/css/pages/admin-reports.css")" rel="stylesheet" />
+
+@section TopBarActions {
+    <a href="@Url.Action("Report", "Attendance")" class="btn-topbar-secondary">
+        <i data-lucide="download" style="width:16px;height:16px;"></i> Attendance export
+    </a>
+}
+
+<div class="wo-page animate-fade-up">
+    <div class="wo-page-header">
+        <div>
+            <h2>Reports &amp; analytics</h2>
+            <p>Organization-wide insights and quick exports</p>
+        </div>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card-premium wo-stat-card">
+            <div class="stat-left">
+                <div class="stat-number">@Model.ActiveEmployees</div>
+                <div class="stat-label">Active employees</div>
+            </div>
+            <div class="stat-icon"><i data-lucide="users"></i></div>
+        </div>
+        <div class="stat-card-premium wo-stat-card">
+            <div class="stat-left">
+                <div class="stat-number">@Model.MonthAttendanceRate%</div>
+                <div class="stat-label">Attendance (MTD)</div>
+            </div>
+            <div class="stat-icon"><i data-lucide="clock"></i></div>
+        </div>
+        <div class="stat-card-premium wo-stat-card">
+            <div class="stat-left">
+                <div class="stat-number">@Model.TotalTasks</div>
+                <div class="stat-label">Total tasks</div>
+            </div>
+            <div class="stat-icon"><i data-lucide="check-square"></i></div>
+        </div>
+        <div class="stat-card-premium wo-stat-card">
+            <div class="stat-left">
+                <div class="stat-number">@Model.PendingLeaves</div>
+                <div class="stat-label">Pending leaves</div>
+            </div>
+            <div class="stat-icon"><i data-lucide="calendar-days"></i></div>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-lg-5">
+            <div class="wo-chart-card">
+                <h6 class="wo-chart-card__title"><i data-lucide="pie-chart" style="width:18px;height:18px;"></i> Task status</h6>
+                <canvas id="reportTaskChart" height="220"></canvas>
+            </div>
+        </div>
+        <div class="col-lg-7">
+            <div class="wo-chart-card">
+                <h6 class="wo-chart-card__title"><i data-lucide="building-2" style="width:18px;height:18px;"></i> Headcount by department</h6>
+                <canvas id="reportDeptChart" height="220"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <h5 class="mb-3" style="font-size:16px;font-weight:600;">Report modules</h5>
+    <div class="report-hub-grid">
+        <a href="@Url.Action("Report", "Attendance")" class="report-hub-card">
+            <div class="report-hub-card__icon"><i data-lucide="clock"></i></div>
+            <div>
+                <strong>Attendance report</strong>
+                <p>Monthly summary, late days, export to Excel</p>
+            </div>
+            <i data-lucide="chevron-right" class="report-hub-card__arrow"></i>
+        </a>
+        <a href="@Url.Action("Index", "Task")" class="report-hub-card">
+            <div class="report-hub-card__icon"><i data-lucide="check-square"></i></div>
+            <div>
+                <strong>Task management</strong>
+                <p>Filter tasks by department, status, and assignee</p>
+            </div>
+            <i data-lucide="chevron-right" class="report-hub-card__arrow"></i>
+        </a>
+        <a href="@Url.Action("Board", "Task")" class="report-hub-card">
+            <div class="report-hub-card__icon"><i data-lucide="columns"></i></div>
+            <div>
+                <strong>Kanban board</strong>
+                <p>Visual workflow across task statuses</p>
+            </div>
+            <i data-lucide="chevron-right" class="report-hub-card__arrow"></i>
+        </a>
+        <a href="@Url.Action("Requests", "Leave")" class="report-hub-card">
+            <div class="report-hub-card__icon"><i data-lucide="calendar-days"></i></div>
+            <div>
+                <strong>Leave requests</strong>
+                <p>Approvals, balances, and leave types</p>
+            </div>
+            <i data-lucide="chevron-right" class="report-hub-card__arrow"></i>
+        </a>
+        <a href="@Url.Action("Index", "Employee")" class="report-hub-card">
+            <div class="report-hub-card__icon"><i data-lucide="users"></i></div>
+            <div>
+                <strong>Employee directory</strong>
+                <p>Export and manage employee records</p>
+            </div>
+            <i data-lucide="chevron-right" class="report-hub-card__arrow"></i>
+        </a>
+        <a href="@Url.Action("Dashboard", "Admin")" class="report-hub-card">
+            <div class="report-hub-card__icon"><i data-lucide="layout-dashboard"></i></div>
+            <div>
+                <strong>Admin dashboard</strong>
+                <p>Live KPIs and activity timeline</p>
+            </div>
+            <i data-lucide="chevron-right" class="report-hub-card__arrow"></i>
+        </a>
+    </div>
+
+    <div class="data-table-container-premium mt-4">
+        <div class="wo-card-header" style="padding:16px 20px 0;">
+            <h5 class="mb-0" style="font-size:16px;font-weight:600;">Department summary</h5>
+        </div>
+        <div class="table-responsive">
+            <table class="employee-table">
+                <thead>
+                    <tr>
+                        <th>Department</th>
+                        <th>Employees</th>
+                        <th>Active tasks</th>
+                        <th>Today present</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var d in Model.Departments)
+                    {
+                        <tr>
+                            <td><span class="dept-badge">@d.DepartmentName</span></td>
+                            <td>@d.EmployeeCount</td>
+                            <td>@d.ActiveTasks</td>
+                            <td>-</td>
+                        </tr>
+                    }
+                </tbody>
+                <tfoot>
+                    <tr class="report-table-foot">
+                        <td><strong>Organization</strong></td>
+                        <td>@Model.ActiveEmployees</td>
+                        <td>@Model.TotalTasks</td>
+                        <td>@Model.TodayPresent present / @Model.TodayAbsent absent</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+<script>
+    var taskCounts = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.TaskStatusCounts ?? new int[5]));
+    var deptLabels = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.Departments.Select(d => d.DepartmentName).ToArray()));
+    var deptCounts = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.Departments.Select(d => d.EmployeeCount).ToArray()));
+
+    var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    var gridColor = isDark ? '#334155' : '#e2e8f0';
+    var textColor = isDark ? '#94a3b8' : '#64748b';
+
+    new Chart(document.getElementById('reportTaskChart'), {
+        type: 'doughnut',
+        data: {
+            labels: ['Pending', 'In Progress', 'Submitted', 'Approved', 'Completed'],
+            datasets: [{
+                data: taskCounts,
+                backgroundColor: ['#94a3b8', '#2563eb', '#f59e0b', '#059669', '#10b981'],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { position: 'bottom', labels: { color: textColor } } }
+        }
+    });
+
+    new Chart(document.getElementById('reportDeptChart'), {
+        type: 'bar',
+        data: {
+            labels: deptLabels,
+            datasets: [{
+                label: 'Employees',
+                data: deptCounts,
+                backgroundColor: '#2563eb',
+                borderRadius: 6
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { ticks: { color: textColor }, grid: { color: gridColor } },
+                y: { beginAtZero: true, ticks: { stepSize: 1, color: textColor }, grid: { color: gridColor } }
+            }
+        }
+    });
+</script>
+}

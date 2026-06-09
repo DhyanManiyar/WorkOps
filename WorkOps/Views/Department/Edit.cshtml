@@ -1,0 +1,69 @@
+﻿@model WorkOps.Models.EditDepartmentViewModel
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewBag.Title = "Edit Department";
+}
+
+<link href="@Url.Content("~/Content/css/pages/admin-modules.css")" rel="stylesheet" />
+
+<div class="wo-page animate-fade-up">
+    <div class="wo-page-header">
+        <div>
+            <h2>Edit Department</h2>
+            <p>Update department information</p>
+        </div>
+        <a href="@Url.Action("Index", "Department")" class="btn-topbar-secondary">
+            <i data-lucide="arrow-left" style="width:16px;height:16px;"></i> Back
+        </a>
+    </div>
+
+    @using (Html.BeginForm("Edit", "Department", FormMethod.Post))
+    {
+        @Html.AntiForgeryToken()
+        @Html.HiddenFor(m => m.DepartmentID)
+        @Html.ValidationSummary(true, "", new { @class = "alert alert-danger" })
+
+        <div class="form-section wo-form-section">
+            <h5 class="section-title wo-form-section__title"><i class="fas fa-edit"></i> Department Details</h5>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    @Html.LabelFor(m => m.DepartmentName)
+                    @Html.TextBoxFor(m => m.DepartmentName, new { @class = "form-control", placeholder = "Department name" })
+                    @Html.ValidationMessageFor(m => m.DepartmentName, "", new { @class = "text-danger" })
+                </div>
+                <div class="col-md-12 mb-3">
+                    @Html.LabelFor(m => m.Description)
+                    @Html.TextAreaFor(m => m.Description, new { @class = "form-control", rows = 3, placeholder = "Department description" })
+                </div>
+                <div class="col-md-6 mb-3">
+                    @Html.LabelFor(m => m.DepartmentHeadID)
+                    @Html.DropDownListFor(m => m.DepartmentHeadID, Model.Employees, "Select Department Head", new { @class = "form-select" })
+                    <small class="text-muted">Assign a manager to lead this department</small>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label d-block">Status</label>
+                    <div class="status-toggle">
+                        <div class="form-check form-switch">
+                            @Html.CheckBoxFor(m => m.IsActive, new { @class = "form-check-input", role = "switch" })
+                            @Html.LabelFor(m => m.IsActive, "Department active", new { @class = "form-check-label ms-2" })
+                        </div>
+                        <small class="text-muted">Inactive departments are hidden from dropdowns</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="wo-form-footer" style="position:static; border:none; padding:16px 0 0; background:transparent;">
+                <button type="submit" class="btn-topbar-primary border-0">
+                    <i data-lucide="save" style="width:16px;height:16px;"></i> Save Changes
+                </button>
+                <a href="@Url.Action("Details", "Department", new { id = Model.DepartmentID })" class="btn-topbar-secondary">View Details</a>
+            </div>
+        </div>
+    }
+</div>
+
+@section scripts {
+    <script>
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+    </script>
+}

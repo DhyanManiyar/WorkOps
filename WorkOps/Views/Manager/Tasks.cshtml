@@ -1,0 +1,70 @@
+@using System.Linq
+@model List<WorkOps.Models.ManagerTaskViewModel>
+@{
+    Layout = "~/Views/Shared/_ManagerLayout.cshtml";
+    ViewBag.Title = "Team Tasks";
+    var currentStatus = ViewBag.CurrentStatus as int?;
+}
+
+@section TopBarActions {
+    <a href="@Url.Action("AssignTask", "Manager")" class="btn-topbar-primary">
+        <i data-lucide="plus" style="width:16px;height:16px;"></i> Assign Task
+    </a>
+}
+
+<div class="wo-page">
+    <div class="wo-page-header">
+        <div>
+            <h2>Team tasks</h2>
+            <p>Track and filter tasks assigned to your team</p>
+        </div>
+    </div>
+
+    <div class="status-filter mb-3">
+        <a href="@Url.Action("Tasks", "Manager")" class="filter-btn @(currentStatus == null ? "active" : "")">All</a>
+        <a href="@Url.Action("Tasks", "Manager", new { status = 1 })" class="filter-btn @(currentStatus == 1 ? "active" : "")">Pending</a>
+        <a href="@Url.Action("Tasks", "Manager", new { status = 2 })" class="filter-btn @(currentStatus == 2 ? "active" : "")">In Progress</a>
+        <a href="@Url.Action("Tasks", "Manager", new { status = 3 })" class="filter-btn @(currentStatus == 3 ? "active" : "")">Submitted</a>
+        <a href="@Url.Action("Tasks", "Manager", new { status = 5 })" class="filter-btn @(currentStatus == 5 ? "active" : "")">Completed</a>
+    </div>
+
+    <div class="data-table-container-premium">
+        @if (Model == null || !Model.Any())
+        {
+            <div class="wo-empty-state-inline py-5"><p class="mb-0 text-muted">No tasks found for your team.</p></div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="employee-table">
+                    <thead>
+                        <tr>
+                            <th class="col-code">Code</th>
+                            <th class="col-title">Title</th>
+                            <th class="col-assignee">Assignee</th>
+                            <th>Priority</th>
+                            <th>Status</th>
+                            <th>Due Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var t in Model)
+                        {
+                            <tr class="@(t.IsOverdue ? "table-warning" : "")">
+                                <td class="col-code"><code>@t.TaskCode</code></td>
+                                <td class="col-title employee-name">@t.Title</td>
+                                <td class="col-assignee">@t.AssignedToName</td>
+                                <td><span class="badge bg-@t.PriorityColor">@t.PriorityText</span></td>
+                                <td><span class="badge bg-@t.StatusColor">@t.StatusText</span></td>
+                                <td>
+                                    @t.DueDate.ToString("dd/MM/yyyy")
+                                    @if (t.IsOverdue) { <span class="absent-badge ms-1">Overdue</span> }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>

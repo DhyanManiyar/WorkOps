@@ -1,0 +1,54 @@
+# Visual Studio
+.vs/
+bin/
+obj/
+Debug/
+Release/
+*.user
+*.suo
+*.sln.docstates
+
+# NuGet Packages
+packages/
+*.nupkg
+
+# Entity Framework
+*.edmx.diagram
+*.edmx.designer.cs
+
+# User files
+*.userprefs
+*.dbmdl
+
+# Build results
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+build/
+
+# ASP.NET
+App_Data/*.mdf
+App_Data/*.ldf
+App_Data/*.log
+
+# Uploaded files (keep folder structure but not files)
+App_Data/Uploads/*.*
+!App_Data/Uploads/.gitkeep
+
+# Logs
+*.log
+logs/
+
+# Backup files
+*.bak
+*.tmp
+
+# Windows image file caches
+Thumbs.db
+ehthumbs.db
+
+# Visual Studio cache files
+.vs/
+*.cache
+*.cachefile

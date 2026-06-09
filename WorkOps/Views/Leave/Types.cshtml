@@ -1,0 +1,80 @@
+@using System.Linq
+@model List<WorkOps.Models.LeaveTypeViewModel>
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewBag.Title = "Leave Types";
+}
+
+<link href="@Url.Content("~/Content/css/pages/admin-modules.css")" rel="stylesheet" />
+<link href="@Url.Content("~/Content/css/pages/admin-attendance-leave.css")" rel="stylesheet" />
+
+@section TopBarActions {
+    <a href="@Url.Action("Index", "Leave")" class="btn-topbar-secondary">
+        <i data-lucide="arrow-left" style="width:16px;height:16px;"></i> Dashboard
+    </a>
+}
+
+<div class="wo-page animate-fade-up">
+    <div class="wo-page-header">
+        <div>
+            <h2>Leave Types</h2>
+            <p>Configured leave categories and annual limits</p>
+        </div>
+    </div>
+
+    <div class="data-table-container-premium">
+        @if (Model.Any())
+        {
+            <div class="table-responsive">
+                <table class="employee-table">
+                    <thead>
+                        <tr>
+                            <th>Type</th>
+                            <th>Description</th>
+                            <th>Max days / year</th>
+                            <th>Paid</th>
+                            <th>Document required</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td><span class="employee-name">@item.TypeName</span></td>
+                                <td style="font-size:13px;color:var(--wo-text-secondary);">@(string.IsNullOrWhiteSpace(item.Description) ? "-" : item.Description)</td>
+                                <td><span class="dept-badge">@item.MaxDaysPerYear</span></td>
+                                <td>
+                                    @if (item.IsPaid)
+                                    {
+                                        <span class="present-badge">Paid</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="absent-badge">Unpaid</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (item.RequiresDocument)
+                                    {
+                                        <span class="halfday-badge">Yes</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted" style="font-size:13px;">No</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="wo-empty-state">
+                <i data-lucide="layers" style="width:48px;height:48px;"></i>
+                <p class="mb-0">No leave types configured</p>
+            </div>
+        }
+    </div>
+</div>

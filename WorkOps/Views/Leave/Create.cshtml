@@ -1,0 +1,80 @@
+@model WorkOps.Models.LeaveRequestViewModel
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewBag.Title = "Create Leave Request";
+}
+
+<link href="@Url.Content("~/Content/css/pages/admin-modules.css")" rel="stylesheet" />
+<link href="@Url.Content("~/Content/css/pages/admin-attendance-leave.css")" rel="stylesheet" />
+
+@section TopBarActions {
+    <a href="@Url.Action("Requests", "Leave")" class="btn-topbar-secondary">
+        <i data-lucide="arrow-left" style="width:16px;height:16px;"></i> Back to Requests
+    </a>
+}
+
+<div class="wo-page animate-fade-up">
+    <div class="wo-page-header">
+        <div>
+            <h2>Create Leave Request</h2>
+            <p>Submit a new leave application on behalf of an employee</p>
+        </div>
+    </div>
+
+    <div class="form-section wo-form-section">
+        @using (Html.BeginForm("Create", "Leave", FormMethod.Post))
+        {
+            @Html.AntiForgeryToken()
+            @Html.ValidationSummary(true, "", new { @class = "alert alert-danger" })
+
+            <h5 class="section-title wo-form-section__title"><i data-lucide="calendar-plus" style="width:18px;height:18px;"></i> Leave details</h5>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    @Html.LabelFor(m => m.EmployeeID)
+                    @Html.DropDownListFor(m => m.EmployeeID, Model.Employees, "Select Employee", new { @class = "form-select" })
+                    @Html.ValidationMessageFor(m => m.EmployeeID, "", new { @class = "text-danger" })
+                </div>
+                <div class="col-md-6 mb-3">
+                    @Html.LabelFor(m => m.LeaveTypeID)
+                    @Html.DropDownListFor(m => m.LeaveTypeID, Model.LeaveTypes, "Select Leave Type", new { @class = "form-select" })
+                    @Html.ValidationMessageFor(m => m.LeaveTypeID, "", new { @class = "text-danger" })
+                </div>
+                <div class="col-md-6 mb-3">
+                    @Html.LabelFor(m => m.StartDate)
+                    @Html.TextBoxFor(m => m.StartDate, "{0:yyyy-MM-dd}", new { @class = "form-control", type = "date" })
+                    @Html.ValidationMessageFor(m => m.StartDate, "", new { @class = "text-danger" })
+                </div>
+                <div class="col-md-6 mb-3">
+                    @Html.LabelFor(m => m.EndDate)
+                    @Html.TextBoxFor(m => m.EndDate, "{0:yyyy-MM-dd}", new { @class = "form-control", type = "date" })
+                    @Html.ValidationMessageFor(m => m.EndDate, "", new { @class = "text-danger" })
+                </div>
+                <div class="col-md-12 mb-3">
+                    @Html.LabelFor(m => m.Reason)
+                    @Html.TextAreaFor(m => m.Reason, new { @class = "form-control", rows = 4, placeholder = "Reason for leave request" })
+                    @Html.ValidationMessageFor(m => m.Reason, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="info-card wo-info-callout">
+                <div class="d-flex align-items-start gap-3">
+                    <i data-lucide="info" style="width:20px;height:20px;color:var(--wo-primary);flex-shrink:0;margin-top:2px;"></i>
+                    <div>
+                        <strong>Working days</strong>
+                        <p class="small text-muted mb-0 mt-1">Total days are calculated automatically excluding weekends when the request is saved.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="wo-form-footer" style="position:static;border:none;padding:20px 0 0;background:transparent;">
+                <button type="submit" class="btn-topbar-primary" style="display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border:none;border-radius:var(--wo-radius-md);cursor:pointer;">
+                    <i data-lucide="send" style="width:16px;height:16px;"></i> Submit Request
+                </button>
+                <a href="@Url.Action("Requests", "Leave")" class="btn-topbar-secondary" style="display:inline-flex;align-items:center;gap:8px;padding:10px 20px;text-decoration:none;">
+                    Cancel
+                </a>
+            </div>
+        }
+    </div>
+</div>

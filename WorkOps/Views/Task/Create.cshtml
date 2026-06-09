@@ -1,0 +1,116 @@
+﻿@model WorkOps.Models.CreateTaskViewModel
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewBag.Title = "Create New Task";
+}
+
+<link href="@Url.Content("~/Content/css/pages/admin-modules.css")" rel="stylesheet" />
+<link href="@Url.Content("~/Content/css/pages/admin-tasks.css")" rel="stylesheet" />
+
+<div class="wo-page animate-fade-up">
+    <div class="wo-page-header">
+        <div>
+            <h2>Create New Task</h2>
+            <p>Assign and track work items</p>
+        </div>
+        <a href="@Url.Action("Index", "Task")" class="btn-topbar-secondary">
+            <i data-lucide="arrow-left" style="width:16px;height:16px;"></i> Back to List
+        </a>
+    </div>
+
+    @using (Html.BeginForm("Create", "Task", FormMethod.Post, new { @class = "needs-validation" }))
+    {
+        @Html.AntiForgeryToken()
+        @Html.ValidationSummary(true, "", new { @class = "alert alert-danger" })
+
+        <div class="form-section wo-form-section">
+            <h5 class="section-title wo-form-section__title"><i data-lucide="file-text" style="width:18px;height:18px;"></i> Task Information</h5>
+            <div class="mb-3">
+                @Html.LabelFor(m => m.Title)
+                @Html.TextBoxFor(m => m.Title, new { @class = "form-control", placeholder = "Enter task title" })
+                @Html.ValidationMessageFor(m => m.Title, "", new { @class = "text-danger" })
+            </div>
+            <div class="mb-3">
+                @Html.LabelFor(m => m.Description)
+                @Html.TextAreaFor(m => m.Description, new { @class = "form-control", rows = 4, placeholder = "Describe the task in detail…" })
+            </div>
+        </div>
+
+        <div class="form-section wo-form-section">
+            <h5 class="section-title wo-form-section__title"><i data-lucide="user-check" style="width:18px;height:18px;"></i> Assignment</h5>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    @Html.LabelFor(m => m.AssignedTo)
+                    @Html.DropDownListFor(m => m.AssignedTo, Model.Employees, "Select Employee", new { @class = "form-select" })
+                    @Html.ValidationMessageFor(m => m.AssignedTo, "", new { @class = "text-danger" })
+                </div>
+                <div class="col-md-6 mb-3">
+                    @Html.LabelFor(m => m.DepartmentID)
+                    @Html.DropDownListFor(m => m.DepartmentID, Model.Departments, "Select Department", new { @class = "form-select" })
+                    @Html.ValidationMessageFor(m => m.DepartmentID, "", new { @class = "text-danger" })
+                </div>
+            </div>
+        </div>
+
+        <div class="form-section wo-form-section">
+            <h5 class="section-title wo-form-section__title"><i data-lucide="calendar" style="width:18px;height:18px;"></i> Scheduling</h5>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    @Html.LabelFor(m => m.StartDate)
+                    @Html.TextBoxFor(m => m.StartDate, "{0:yyyy-MM-dd}", new { @class = "form-control", type = "date" })
+                </div>
+                <div class="col-md-6 mb-3">
+                    @Html.LabelFor(m => m.DueDate)
+                    @Html.TextBoxFor(m => m.DueDate, "{0:yyyy-MM-dd}", new { @class = "form-control", type = "date" })
+                    @Html.ValidationMessageFor(m => m.DueDate, "", new { @class = "text-danger" })
+                </div>
+            </div>
+            <div class="mb-3">
+                @Html.LabelFor(m => m.EstimatedHours)
+                @Html.TextBoxFor(m => m.EstimatedHours, new { @class = "form-control", type = "number", step = "0.5", placeholder = "Estimated hours" })
+            </div>
+        </div>
+
+        <div class="form-section wo-form-section">
+            <h5 class="section-title wo-form-section__title"><i data-lucide="flag" style="width:18px;height:18px;"></i> Priority</h5>
+            @Html.HiddenFor(m => m.Priority)
+            <div class="task-picker-grid task-picker-grid--priority">
+                <div class="priority-badge priority-low task-picker-option text-center" data-priority="1">Low</div>
+                <div class="priority-badge priority-medium task-picker-option text-center" data-priority="2">Medium</div>
+                <div class="priority-badge priority-high task-picker-option text-center" data-priority="3">High</div>
+                <div class="priority-badge priority-critical task-picker-option text-center" data-priority="4">Critical</div>
+            </div>
+            @Html.ValidationMessageFor(m => m.Priority, "", new { @class = "text-danger" })
+        </div>
+
+        <div class="wo-form-footer" style="position:static;border:none;padding:0 0 24px;background:transparent;">
+            <button type="submit" class="btn-topbar-primary" style="display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border:none;border-radius:var(--wo-radius-md);cursor:pointer;">
+                <i data-lucide="save" style="width:16px;height:16px;"></i> Create Task
+            </button>
+            <a href="@Url.Action("Index", "Task")" class="btn-topbar-secondary" style="display:inline-flex;align-items:center;gap:8px;padding:10px 20px;text-decoration:none;">Cancel</a>
+        </div>
+    }
+</div>
+
+@section scripts {
+    <script>
+        $(document).ready(function() {
+            $('.priority-badge').click(function() {
+                $('.priority-badge').removeClass('priority-selected');
+                $(this).addClass('priority-selected');
+                $('#Priority').val($(this).data('priority'));
+            });
+            $('.priority-badge[data-priority="2"]').addClass('priority-selected');
+            $('#Priority').val(2);
+            $('#StartDate, #DueDate').change(function() {
+                var startDate = $('#StartDate').val();
+                var dueDate = $('#DueDate').val();
+                if (startDate && dueDate && new Date(dueDate) < new Date(startDate)) {
+                    alert('Due date cannot be before start date');
+                    $('#DueDate').val('');
+                }
+            });
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        });
+    </script>
+}

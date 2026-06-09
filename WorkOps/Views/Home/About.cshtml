@@ -1,0 +1,38 @@
+﻿@{
+    ViewBag.Title = "About";
+    Layout = "~/Views/Shared/_PublicLayout.cshtml";
+}
+
+<div class="wo-public-page">
+    <section class="wo-public-hero">
+        <h1>About WorkOps</h1>
+        <p class="lead mb-0">@ViewBag.Message</p>
+    </section>
+
+    <div class="wo-public-card">
+        <h3>Our product mission</h3>
+        <p>
+            WorkOps is built to simplify day-to-day operations with one secure platform that connects HR,
+            managers, and employees without duplicated tracking or disconnected tools.
+        </p>
+    </div>
+
+    <div class="wo-public-grid">
+        <div class="wo-public-card h-100">
+            <h3>Admin workspace</h3>
+            <p>Control departments, employees, settings, attendance, and company reports.</p>
+        </div>
+        <div class="wo-public-card h-100">
+            <h3>Manager workflow</h3>
+            <p>Assign tasks, approve submissions, review leaves, and monitor team delivery.</p>
+        </div>
+        <div class="wo-public-card h-100">
+            <h3>Employee self-service</h3>
+            <p>Track assigned tasks, mark attendance, apply leaves, and update profile details.</p>
+        </div>
+    </div>
+
+    <p class="text-center mt-4 mb-0">
+        <a href="@Url.Action("Login", "Account")" class="btn-landing-cta" style="display:inline-flex;">Sign in to your account</a>
+    </p>
+</div>

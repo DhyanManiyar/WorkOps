@@ -1,0 +1,9 @@
+<li>
+    @using (Html.BeginForm("Logout", "Account", FormMethod.Post, new { @class = "wo-logout-form", id = "woLogoutForm" }))
+    {
+        @Html.AntiForgeryToken()
+        <button type="submit" class="dropdown-item text-danger wo-logout-btn">
+            <i data-lucide="log-out" style="width:16px;height:16px;"></i> Logout
+        </button>
+    }
+</li>

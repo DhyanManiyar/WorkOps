@@ -1,0 +1,111 @@
+@using System.Linq
+@model WorkOps.Models.EmployeeAttendanceViewModel
+@{
+    Layout = "~/Views/Shared/_EmployeeLayout.cshtml";
+    ViewBag.Title = "My Attendance";
+}
+
+<div class="wo-page">
+    <div class="wo-page-header">
+        <div>
+            <h2>My attendance</h2>
+            <p>Check in, check out, and monthly history</p>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-md-8">
+            <div class="data-card detail-card wo-detail-card">
+                <h5 class="wo-detail-card__title">Today &ndash; @Model.CurrentDate.ToString("dddd, dd MMMM yyyy")</h5>
+                <div class="d-flex flex-wrap gap-4 my-3">
+                    <div>
+                        <div class="text-muted small">Status</div>
+                        <span class="badge bg-@Model.StatusColor fs-6">@Model.StatusText</span>
+                    </div>
+                    <div>
+                        <div class="text-muted small">Check in</div>
+                        <strong>@(Model.CheckInTime?.ToString("hh:mm tt") ?? "-")</strong>
+                    </div>
+                    <div>
+                        <div class="text-muted small">Check out</div>
+                        <strong>@(Model.CheckOutTime?.ToString("hh:mm tt") ?? "-")</strong>
+                    </div>
+                    <div>
+                        <div class="text-muted small">Hours</div>
+                        <strong>@(Model.TotalHoursToday?.ToString("F1") ?? "-")</strong>
+                    </div>
+                    @if (Model.LateMinutes > 0)
+                    {
+                        <div>
+                            <div class="text-muted small">Late</div>
+                            <strong class="text-danger">@Model.LateMinutes min</strong>
+                        </div>
+                    }
+                </div>
+                <div class="d-flex gap-2 flex-wrap">
+                    @if (Model.CanCheckIn)
+                    {
+                        using (Html.BeginForm("CheckIn", "EmployeePanel", FormMethod.Post))
+                        {
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn-emp-primary border-0"><i data-lucide="log-in" style="width:16px;height:16px;"></i> Check in now</button>
+                        }
+                    }
+                    @if (Model.CanCheckOut)
+                    {
+                        using (Html.BeginForm("CheckOut", "EmployeePanel", FormMethod.Post))
+                        {
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-success"><i data-lucide="log-out" style="width:16px;height:16px;"></i> Check out now</button>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="data-card detail-card wo-detail-card h-100 text-center d-flex flex-column justify-content-center">
+                <div class="wo-metric-highlight">@Model.MonthAttendanceRate%</div>
+                <div class="text-muted">Attendance this month</div>
+                <div class="small mt-2 text-muted">@Model.PresentDaysThisMonth present day(s) recorded</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="data-table-container-premium">
+        <div class="wo-card-header" style="padding:16px 20px 0;">
+            <h5 class="mb-0" style="font-size:16px;font-weight:600;">This month</h5>
+        </div>
+        @if (Model.History == null || !Model.History.Any())
+        {
+            <div class="wo-empty-state-inline py-4"><p class="mb-0 text-muted">No attendance records this month.</p></div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="employee-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Check in</th>
+                            <th>Check out</th>
+                            <th>Hours</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var h in Model.History)
+                        {
+                            <tr class="@(h.IsWeekend ? "text-muted" : "")">
+                                <td>@h.Date.ToString("dd/MM") <small>@h.DayName</small></td>
+                                <td>@(h.CheckIn?.ToString("hh:mm tt") ?? "-")</td>
+                                <td>@(h.CheckOut?.ToString("hh:mm tt") ?? "-")</td>
+                                <td>@(h.TotalHours?.ToString("F1") ?? "-")</td>
+                                <td><span class="badge bg-@h.StatusColor">@h.StatusText</span></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>

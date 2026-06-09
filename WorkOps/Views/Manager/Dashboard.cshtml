@@ -1,0 +1,170 @@
+@using System.Linq
+@model WorkOps.Models.ManagerDashboardViewModel
+@{
+    Layout = "~/Views/Shared/_ManagerLayout.cshtml";
+    ViewBag.Title = "Dashboard";
+}
+
+<link href="@Url.Content("~/Content/css/pages/admin-dashboard.css")" rel="stylesheet" />
+
+@section TopBarActions {
+    <a href="@Url.Action("AssignTask", "Manager")" class="btn-topbar-primary">
+        <i data-lucide="plus" style="width:16px;height:16px;"></i> Assign Task
+    </a>
+}
+
+<div class="wo-dash animate-fade-up">
+    <header class="wo-dash-hero">
+        <div class="wo-dash-hero__greeting">
+            <h2>Welcome back, @Model.ManagerName</h2>
+            <p>@Model.DepartmentName &middot; @DateTime.Now.ToString("dddd, MMMM d, yyyy")</p>
+        </div>
+        <div class="wo-dash-hero__meta">
+            <div class="wo-dash-hero__stat">
+                <div class="wo-dash-hero__stat-value">@Model.PresentToday</div>
+                <div class="wo-dash-hero__stat-label">Present today</div>
+            </div>
+            <div class="wo-dash-hero__stat">
+                <div class="wo-dash-hero__stat-value">@Model.PendingLeaves</div>
+                <div class="wo-dash-hero__stat-label">Pending leaves</div>
+            </div>
+            <div class="wo-dash-hero__stat">
+                <div class="wo-dash-hero__stat-value">@Model.TeamSize</div>
+                <div class="wo-dash-hero__stat-label">Team members</div>
+            </div>
+        </div>
+    </header>
+
+    <div class="wo-dash-stats">
+        <article class="wo-dash-stat">
+            <div class="wo-dash-stat__body">
+                <div class="wo-dash-stat__value">@Model.TeamSize</div>
+                <div class="wo-dash-stat__label">Team size</div>
+                <span class="wo-dash-stat__hint wo-dash-stat__hint--neutral">
+                    <i data-lucide="users" style="width:12px;height:12px;"></i> Direct reports
+                </span>
+            </div>
+            <div class="wo-dash-stat__icon wo-dash-stat__icon--blue">
+                <i data-lucide="users"></i>
+            </div>
+        </article>
+        <article class="wo-dash-stat">
+            <div class="wo-dash-stat__body">
+                <div class="wo-dash-stat__value">@Model.PendingTasks</div>
+                <div class="wo-dash-stat__label">Active tasks</div>
+                <span class="wo-dash-stat__hint wo-dash-stat__hint--neutral">
+                    <i data-lucide="list-todo" style="width:12px;height:12px;"></i> In progress
+                </span>
+            </div>
+            <div class="wo-dash-stat__icon wo-dash-stat__icon--purple">
+                <i data-lucide="list-todo"></i>
+            </div>
+        </article>
+        <article class="wo-dash-stat">
+            <div class="wo-dash-stat__body">
+                <div class="wo-dash-stat__value" style="color:var(--wo-danger);">@Model.OverdueTasks</div>
+                <div class="wo-dash-stat__label">Overdue</div>
+                <span class="wo-dash-stat__hint wo-dash-stat__hint--down">
+                    <i data-lucide="alert-triangle" style="width:12px;height:12px;"></i> Needs action
+                </span>
+            </div>
+            <div class="wo-dash-stat__icon wo-dash-stat__icon--red">
+                <i data-lucide="alert-triangle"></i>
+            </div>
+        </article>
+        <article class="wo-dash-stat">
+            <div class="wo-dash-stat__body">
+                <div class="wo-dash-stat__value" style="color:var(--wo-warning);">@Model.SubmittedTasks</div>
+                <div class="wo-dash-stat__label">Awaiting approval</div>
+                <span class="wo-dash-stat__hint wo-dash-stat__hint--amber">
+                    <i data-lucide="inbox" style="width:12px;height:12px;"></i> Submitted tasks
+                </span>
+            </div>
+            <div class="wo-dash-stat__icon wo-dash-stat__icon--amber">
+                <i data-lucide="inbox"></i>
+            </div>
+        </article>
+    </div>
+
+    <div class="wo-dash-charts">
+        <div class="wo-dash-panel">
+            <div class="wo-dash-panel__head">
+                <h3 class="wo-dash-panel__title">
+                    <i data-lucide="bar-chart-3"></i> Team task status
+                </h3>
+            </div>
+            <div class="wo-dash-panel__body">
+                <canvas id="taskStatusChart" height="220"></canvas>
+            </div>
+        </div>
+        <div class="wo-dash-panel">
+            <div class="wo-dash-panel__head">
+                <h3 class="wo-dash-panel__title">
+                    <i data-lucide="users"></i> Team overview
+                </h3>
+                <a href="@Url.Action("Team", "Manager")" class="wo-dash-panel__link">View all</a>
+            </div>
+            <div class="wo-dash-panel__body wo-dash-panel__body--flush">
+                @if (Model.TeamMembers != null && Model.TeamMembers.Any())
+                {
+                    foreach (var m in Model.TeamMembers.Take(5))
+                    {
+                        <div class="team-row">
+                            <div class="team-avatar">@m.Initials</div>
+                            <div class="flex-grow-1 min-width-0">
+                                <div style="font-weight:600;font-size:14px;">@m.FullName</div>
+                                <div class="small text-muted text-truncate">@m.Position &middot; @m.ActiveTasks active tasks</div>
+                            </div>
+                            <span class="badge bg-@m.TodayAttendanceColor">@m.TodayAttendance</span>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <p class="text-muted mb-0 p-3">No direct reports assigned. Set ManagerID on employee records.</p>
+                }
+            </div>
+        </div>
+    </div>
+
+    @if (Model.RecentActivities != null && Model.RecentActivities.Any())
+    {
+        <div class="wo-dash-panel mt-4">
+            <div class="wo-dash-panel__head">
+                <h3 class="wo-dash-panel__title">
+                    <i data-lucide="history"></i> Recent activity
+                </h3>
+            </div>
+            <div class="wo-dash-panel__body wo-dash-panel__body--flush">
+                @foreach (var a in Model.RecentActivities)
+                {
+                    <div class="team-row">
+                        <i data-lucide="@(a.Type == "task" ? "check-square" : "calendar-days")" style="width:18px;height:18px;color:var(--wo-primary);flex-shrink:0;"></i>
+                        <span style="flex:1;font-size:14px;">@a.Message</span>
+                        <small class="text-muted">@a.TimeAgo</small>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+</div>
+
+@section scripts {
+<script>
+    var counts = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.TaskStatusCounts ?? new int[5]));
+    new Chart(document.getElementById('taskStatusChart'), {
+        type: 'bar',
+        data: {
+            labels: ['Pending', 'In Progress', 'Submitted', 'Approved', 'Completed'],
+            datasets: [{
+                label: 'Tasks',
+                data: counts,
+                backgroundColor: ['#94a3b8', '#2563eb', '#f59e0b', '#059669', '#10b981'],
+                borderRadius: 8
+            }]
+        },
+        options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+    });
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+</script>
+}

@@ -1,0 +1,114 @@
+@model WorkOps.Models.LeaveRequestViewModel
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewBag.Title = "Leave Request Details";
+    var statusText = Model.Status == 1 ? "Pending" : Model.Status == 2 ? "Approved" : Model.Status == 3 ? "Rejected" : "Cancelled";
+    var statusColor = Model.Status == 1 ? "warning" : Model.Status == 2 ? "success" : Model.Status == 3 ? "danger" : "secondary";
+}
+
+<link href="@Url.Content("~/Content/css/pages/admin-modules.css")" rel="stylesheet" />
+<link href="@Url.Content("~/Content/css/pages/admin-attendance-leave.css")" rel="stylesheet" />
+
+@section TopBarActions {
+    <a href="@Url.Action("Requests", "Leave")" class="btn-topbar-secondary">
+        <i data-lucide="arrow-left" style="width:16px;height:16px;"></i> Back
+    </a>
+    @if (Model.Status == 1)
+    {
+        <a href="@Url.Action("Approve", "Leave", new { id = Model.LeaveRequestID })" class="btn-topbar-primary"
+           data-wo-confirm="Approve this leave request?"
+           data-wo-confirm-title="Approve leave"
+           data-wo-confirm-variant="success"
+           data-wo-confirm-ok="Approve"
+           style="background:var(--wo-success);">
+            <i data-lucide="check" style="width:16px;height:16px;"></i> Approve
+        </a>
+    }
+}
+
+<div class="wo-page animate-fade-up">
+    <div class="wo-page-header">
+        <div>
+            <h2>Leave Request #@Model.LeaveRequestID</h2>
+            <p>@Model.EmployeeName · @Model.Department</p>
+        </div>
+        <span class="badge bg-@statusColor" style="font-size:13px;padding:8px 14px;">@statusText</span>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="detail-card wo-detail-card">
+                <h5 class="wo-detail-card__title"><i data-lucide="file-text" style="width:18px;height:18px;"></i> Request information</h5>
+                <div class="info-row">
+                    <span class="info-label">Leave type</span>
+                    <span class="info-value">@Model.LeaveTypeName</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Duration</span>
+                    <span class="info-value">@Model.StartDate.ToString("dd MMM yyyy") – @Model.EndDate.ToString("dd MMM yyyy")</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Total days</span>
+                    <span class="info-value"><span class="dept-badge">@Model.TotalDays days</span></span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Applied</span>
+                    <span class="info-value">@Model.AppliedDate.ToString("dd MMM yyyy")</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Reason</span>
+                    <span class="info-value">@(string.IsNullOrWhiteSpace(Model.Reason) ? "-" : Model.Reason)</span>
+                </div>
+                @if (!string.IsNullOrWhiteSpace(Model.ApprovedByName))
+                {
+                    <div class="info-row">
+                        <span class="info-label">Approved by</span>
+                        <span class="info-value">@Model.ApprovedByName</span>
+                    </div>
+                }
+                @if (Model.ApprovedDate.HasValue)
+                {
+                    <div class="info-row">
+                        <span class="info-label">Decision date</span>
+                        <span class="info-value">@Model.ApprovedDate.Value.ToString("dd MMM yyyy")</span>
+                    </div>
+                }
+                @if (!string.IsNullOrWhiteSpace(Model.RejectionReason))
+                {
+                    <div class="info-row">
+                        <span class="info-label">Rejection reason</span>
+                        <span class="info-value text-danger">@Model.RejectionReason</span>
+                    </div>
+                }
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="detail-card wo-detail-card">
+                <h5 class="wo-detail-card__title"><i data-lucide="wallet" style="width:18px;height:18px;"></i> Balance</h5>
+                <p class="mb-0" style="font-size:14px;color:var(--wo-text-secondary);">
+                    Available balance for this leave type (current year):
+                </p>
+                <p class="mt-2 mb-3" style="font-size:28px;font-weight:600;color:var(--wo-primary);">@ViewBag.AvailableBalance <span style="font-size:14px;font-weight:500;color:var(--wo-text-secondary);">days</span></p>
+                @if (Model.Status == 1)
+                {
+                    <div class="leave-actions-inline">
+                        <a href="@Url.Action("Approve", "Leave", new { id = Model.LeaveRequestID })" class="btn btn-success w-100 mb-2"
+                           data-wo-confirm="Approve this leave request?"
+                           data-wo-confirm-title="Approve leave"
+                           data-wo-confirm-variant="success"
+                           data-wo-confirm-ok="Approve">
+                            <i data-lucide="check" style="width:16px;height:16px;"></i> Approve
+                        </a>
+                        <a href="@Url.Action("Reject", "Leave", new { id = Model.LeaveRequestID })" class="btn btn-outline-danger w-100"
+                           data-wo-confirm="Reject this leave request?"
+                           data-wo-confirm-title="Reject leave"
+                           data-wo-confirm-variant="danger"
+                           data-wo-confirm-ok="Reject">
+                            <i data-lucide="x" style="width:16px;height:16px;"></i> Reject
+                        </a>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

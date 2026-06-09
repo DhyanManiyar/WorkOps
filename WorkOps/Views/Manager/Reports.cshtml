@@ -1,0 +1,116 @@
+@using System.Linq
+@model WorkOps.Models.ManagerReportsViewModel
+@{
+    Layout = "~/Views/Shared/_ManagerLayout.cshtml";
+    ViewBag.Title = "Team Reports";
+}
+
+<div class="wo-page">
+    <div class="wo-page-header">
+        <div>
+            <h2>Team reports</h2>
+            <p>Performance and attendance insights for your team</p>
+        </div>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card-premium wo-stat-card">
+            <div class="stat-left"><div class="stat-number">@Model.TaskCompletionRate%</div><div class="stat-label">Task completion</div></div>
+            <div class="stat-icon"><i data-lucide="check-circle"></i></div>
+        </div>
+        <div class="stat-card-premium wo-stat-card">
+            <div class="stat-left"><div class="stat-number">@Model.TeamAttendanceRate%</div><div class="stat-label">Attendance (MTD)</div></div>
+            <div class="stat-icon"><i data-lucide="clock"></i></div>
+        </div>
+        <div class="stat-card-premium wo-stat-card">
+            <div class="stat-left"><div class="stat-number" style="color:var(--wo-danger);">@Model.OverdueTasks</div><div class="stat-label">Overdue tasks</div></div>
+            <div class="stat-icon"><i data-lucide="alert-triangle"></i></div>
+        </div>
+        <div class="stat-card-premium wo-stat-card">
+            <div class="stat-left"><div class="stat-number">@Model.PendingLeaves</div><div class="stat-label">Pending leaves</div></div>
+            <div class="stat-icon"><i data-lucide="calendar-days"></i></div>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-lg-7">
+            <div class="wo-chart-card">
+                <h6 class="wo-chart-card__title"><i data-lucide="bar-chart-3" style="width:18px;height:18px;"></i> Tasks by team member</h6>
+                <canvas id="memberChart" height="200"></canvas>
+            </div>
+        </div>
+        <div class="col-lg-5">
+            <div class="wo-chart-card h-100">
+                <h6 class="wo-chart-card__title">Summary</h6>
+                <ul class="list-unstyled wo-summary-list mb-0">
+                    <li><span>Team size</span><strong>@Model.TeamSize</strong></li>
+                    <li><span>Total tasks</span><strong>@Model.TotalTeamTasks</strong></li>
+                    <li><span>Completed</span><strong class="text-success">@Model.CompletedTasks</strong></li>
+                    <li><span>Pending</span><strong>@Model.PendingTasks</strong></li>
+                    <li><span>Leaves approved (month)</span><strong>@Model.ApprovedLeavesThisMonth</strong></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="data-table-container-premium">
+        <div class="wo-card-header" style="padding:16px 20px 0;">
+            <h5 class="mb-0" style="font-size:16px;font-weight:600;">Member performance</h5>
+        </div>
+        @if (Model.MemberPerformance == null || !Model.MemberPerformance.Any())
+        {
+            <div class="wo-empty-state-inline py-4"><p class="mb-0 text-muted">No performance data for your team yet.</p></div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="employee-table">
+                    <thead>
+                        <tr>
+                            <th>Employee</th>
+                            <th>Tasks</th>
+                            <th>Completed</th>
+                            <th>Completion %</th>
+                            <th>Attendance %</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var m in Model.MemberPerformance)
+                        {
+                            <tr>
+                                <td class="employee-name">@m.EmployeeName</td>
+                                <td>@m.TotalTasks</td>
+                                <td>@m.CompletedTasks</td>
+                                <td>
+                                    <div class="progress progress-custom" style="min-width:100px;">
+                                        <div class="progress-bar bg-success" style="width: @m.CompletionRate%"></div>
+                                    </div>
+                                    <small>@m.CompletionRate%</small>
+                                </td>
+                                <td>
+                                    <span class="badge @(m.AttendanceRate >= 90 ? "bg-success" : m.AttendanceRate >= 75 ? "bg-warning text-dark" : "bg-danger")">@m.AttendanceRate%</span>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>
+
+@section scripts {
+<script>
+    new Chart(document.getElementById('memberChart'), {
+        type: 'bar',
+        data: {
+            labels: @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.ChartLabels ?? new string[0])),
+            datasets: [
+                { label: 'Completed', data: @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.ChartCompleted ?? new int[0])), backgroundColor: '#10b981', borderRadius: 6 },
+                { label: 'Pending', data: @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.ChartPending ?? new int[0])), backgroundColor: '#94a3b8', borderRadius: 6 }
+            ]
+        },
+        options: { responsive: true, scales: { x: { stacked: true }, y: { stacked: true, beginAtZero: true } } }
+    });
+</script>
+}

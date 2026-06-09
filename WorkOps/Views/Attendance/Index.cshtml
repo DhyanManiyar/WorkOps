@@ -1,0 +1,128 @@
+﻿@model WorkOps.Models.AttendanceDashboardViewModel
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewBag.Title = "Attendance Dashboard";
+}
+
+<link href="@Url.Content("~/Content/css/pages/admin-modules.css")" rel="stylesheet" />
+<link href="@Url.Content("~/Content/css/pages/admin-attendance-leave.css")" rel="stylesheet" />
+
+@section TopBarActions {
+    <a href="@Url.Action("Report", "Attendance")" class="btn-topbar-secondary">
+        <i data-lucide="bar-chart-3" style="width:16px;height:16px;"></i> Monthly Report
+    </a>
+    <a href="@Url.Action("BulkMark", "Attendance")" class="btn-topbar-secondary">
+        <i data-lucide="users" style="width:16px;height:16px;"></i> Bulk Mark
+    </a>
+    <a href="@Url.Action("Mark", "Attendance")" class="btn-topbar-primary">
+        <i data-lucide="clock" style="width:16px;height:16px;"></i> Mark Attendance
+    </a>
+}
+
+<div class="wo-page animate-fade-up">
+    <div class="wo-page-header">
+        <div>
+            <h2>Attendance Dashboard</h2>
+            <p>@Model.CurrentDate.ToString("dddd, dd MMMM yyyy")</p>
+        </div>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card-premium wo-stat-card stat-accent-success">
+            <div class="stat-left">
+                <div class="stat-number">@Model.PresentCount</div>
+                <div class="stat-label">Present</div>
+            </div>
+            <div class="stat-icon"><i data-lucide="user-check"></i></div>
+        </div>
+        <div class="stat-card-premium wo-stat-card stat-accent-danger">
+            <div class="stat-left">
+                <div class="stat-number">@Model.AbsentCount</div>
+                <div class="stat-label">Absent</div>
+            </div>
+            <div class="stat-icon"><i data-lucide="user-x"></i></div>
+        </div>
+        <div class="stat-card-premium wo-stat-card stat-accent-warning">
+            <div class="stat-left">
+                <div class="stat-number">@Model.LeaveCount</div>
+                <div class="stat-label">On Leave</div>
+            </div>
+            <div class="stat-icon"><i data-lucide="palmtree"></i></div>
+        </div>
+        <div class="stat-card-premium wo-stat-card stat-accent-info">
+            <div class="stat-left">
+                <div class="stat-number">@Model.AttendancePercentage%</div>
+                <div class="stat-label">Attendance Rate</div>
+            </div>
+            <div class="stat-icon"><i data-lucide="trending-up"></i></div>
+        </div>
+    </div>
+
+    <div class="data-card data-table-container-premium" style="padding:0;border:none;background:transparent;box-shadow:none;">
+        <div class="data-table-container-premium">
+            <div class="wo-card-header" style="padding:16px 20px 0;">
+                <h5>Today's Attendance</h5>
+            </div>
+            <div class="table-responsive">
+                <table class="employee-table">
+                    <thead>
+                        <tr>
+                            <th>Employee</th>
+                            <th>Department</th>
+                            <th>Check In</th>
+                            <th>Check Out</th>
+                            <th>Total Hours</th>
+                            <th>Status</th>
+                            <th>Late</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.TodayAttendance)
+                        {
+                            <tr>
+                                <td>
+                                    <div class="employee-info">
+                                        <div class="avatar-sm">@item.Initials</div>
+                                        <div class="employee-name">@item.EmployeeName</div>
+                                    </div>
+                                </td>
+                                <td><span class="dept-badge">@item.Department</span></td>
+                                <td>@item.CheckInDisplay</td>
+                                <td>@item.CheckOutDisplay</td>
+                                <td>@(item.TotalHours?.ToString("F1") ?? "-")</td>
+                                <td>
+                                    @{
+                                        var statusClass = item.Status == 1 ? "present-badge" :
+                                                         item.Status == 2 ? "absent-badge" :
+                                                         item.Status == 3 ? "halfday-badge" : "leave-badge";
+                                        var statusText = item.Status == 1 ? "Present" :
+                                                        item.Status == 2 ? "Absent" :
+                                                        item.Status == 3 ? "Half Day" : "On Leave";
+                                    }
+                                    <span class="@statusClass">@statusText</span>
+                                </td>
+                                <td>
+                                    @if (item.LateMinutes > 0)
+                                    {
+                                        <span class="text-danger" style="font-size:13px;font-weight:500;">@item.LateMinutes min</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted" style="font-size:13px;">On time</span>
+                                    }
+                                </td>
+                                <td>
+                                    <a href="@Url.Action("Mark", "Attendance")?employeeId=@item.EmployeeID&date=@Model.CurrentDate.ToString("yyyy-MM-dd")"
+                                       class="action-btn edit btn-icon-sm" title="Edit">
+                                        <i data-lucide="pencil" style="width:14px;height:14px;"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,248 @@
+﻿@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewBag.Title = "Kanban Board";
+}
+
+<link href="@Url.Content("~/Content/css/pages/admin-modules.css")" rel="stylesheet" />
+<link href="@Url.Content("~/Content/css/pages/admin-tasks.css")" rel="stylesheet" />
+
+@section TopBarActions {
+    <a href="@Url.Action("Index", "Task")" class="btn-topbar-secondary">
+        <i data-lucide="list" style="width:16px;height:16px;"></i> List View
+    </a>
+    <a href="@Url.Action("Create", "Task")" class="btn-topbar-primary">
+        <i data-lucide="plus-circle" style="width:16px;height:16px;"></i> New Task
+    </a>
+}
+
+<div class="wo-page animate-fade-up">
+    <div class="wo-page-header">
+        <div>
+            <h2>Kanban Board</h2>
+            <p>Drag and drop tasks to update status</p>
+        </div>
+    </div>
+
+    <div class="kanban-board-row" id="kanbanBoard">
+        <div class="kanban-column column-pending" data-status="1">
+            <div class="kanban-header">
+                <span><i data-lucide="clock" style="width:14px;height:14px;"></i> Pending</span>
+                <span class="badge bg-secondary" id="pendingCount">0</span>
+            </div>
+            <div class="kanban-tasks" id="pendingTasks"></div>
+        </div>
+        <div class="kanban-column column-progress" data-status="2">
+            <div class="kanban-header">
+                <span><i data-lucide="loader" style="width:14px;height:14px;"></i> In Progress</span>
+                <span class="badge bg-primary" id="progressCount">0</span>
+            </div>
+            <div class="kanban-tasks" id="progressTasks"></div>
+        </div>
+        <div class="kanban-column column-submitted" data-status="3">
+            <div class="kanban-header">
+                <span><i data-lucide="send" style="width:14px;height:14px;"></i> Submitted</span>
+                <span class="badge bg-info" id="submittedCount">0</span>
+            </div>
+            <div class="kanban-tasks" id="submittedTasks"></div>
+        </div>
+        <div class="kanban-column column-approved" data-status="4">
+            <div class="kanban-header">
+                <span><i data-lucide="thumbs-up" style="width:14px;height:14px;"></i> Approved</span>
+                <span class="badge bg-warning text-dark" id="approvedCount">0</span>
+            </div>
+            <div class="kanban-tasks" id="approvedTasks"></div>
+        </div>
+        <div class="kanban-column column-completed" data-status="5">
+            <div class="kanban-header">
+                <span><i data-lucide="check-check" style="width:14px;height:14px;"></i> Completed</span>
+                <span class="badge bg-success" id="completedCount">0</span>
+            </div>
+            <div class="kanban-tasks" id="completedTasks"></div>
+        </div>
+    </div>
+</div>
+
+<div class="toast kanban-toast toast-success" id="successToast" data-bs-autohide="true" data-bs-delay="2000">
+    <div class="toast-body d-flex align-items-center gap-2">
+        <i data-lucide="check-circle" style="width:18px;height:18px;"></i>
+        <span id="toastMessage"></span>
+    </div>
+</div>
+
+@section scripts {
+    <script>
+        $(document).ready(function() {
+            loadKanbanTasks();
+            setupDragAndDrop();
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        });
+
+        function loadKanbanTasks() {
+            $.ajax({
+                url: '@Url.Action("GetKanbanTasks", "Task")',
+                type: 'GET',
+                success: function(response) {
+                    renderTasks('pendingTasks', response.pending);
+                    renderTasks('progressTasks', response.inProgress);
+                    renderTasks('submittedTasks', response.submitted);
+                    renderTasks('approvedTasks', response.approved);
+                    renderTasks('completedTasks', response.completed);
+
+                    $('#pendingCount').text(response.pending.length);
+                    $('#progressCount').text(response.inProgress.length);
+                    $('#submittedCount').text(response.submitted.length);
+                    $('#approvedCount').text(response.approved.length);
+                    $('#completedCount').text(response.completed.length);
+
+                    if (typeof lucide !== 'undefined') lucide.createIcons();
+                },
+                error: function() {
+                    showToast('Error loading tasks', false);
+                }
+            });
+        }
+
+        function formatDueLabel(task) {
+            if (task.Status === 5) return 'Completed';
+            var due = parseServerDate(task.DueDateIso || task.DueDate);
+            if (!due) return 'No date';
+
+            var today = new Date();
+            today.setHours(0, 0, 0, 0);
+            var dueDay = new Date(due);
+            dueDay.setHours(0, 0, 0, 0);
+            var diff = Math.round((dueDay - today) / 86400000);
+
+            if (diff === 0) return 'Today';
+            if (diff === 1) return 'Tomorrow';
+            if (diff === -1) return 'Yesterday';
+            if (diff < 0) return Math.abs(diff) + ' day' + (Math.abs(diff) === 1 ? '' : 's') + ' ago';
+            return diff + ' day' + (diff === 1 ? '' : 's');
+        }
+
+        function getPriorityPillClass(priority) {
+            if (priority == 1) return 'kanban-priority-pill--low';
+            if (priority == 2) return 'kanban-priority-pill--medium';
+            if (priority == 3) return 'kanban-priority-pill--high';
+            return 'kanban-priority-pill--critical';
+        }
+
+        function renderTasks(containerId, tasks) {
+            var container = $('#' + containerId);
+            container.empty();
+
+            if (tasks.length === 0) {
+                container.html('<div class="kanban-empty"><small>No tasks</small></div>');
+                return;
+            }
+
+            $.each(tasks, function(i, task) {
+                var priorityClass = task.Priority == 1 ? 'card-priority-low' :
+                                   task.Priority == 2 ? 'card-priority-medium' :
+                                   task.Priority == 3 ? 'card-priority-high' : 'card-priority-critical';
+
+                var dueLabel = formatDueLabel(task);
+                var dueClass = task.IsOverdue ? 'kanban-card__due is-overdue' : 'kanban-card__due';
+
+                var card = $('<div class="kanban-card ' + priorityClass + '" data-task-id="' + task.TaskID + '" draggable="true">' +
+                    '<div class="kanban-card__title">' + escapeHtml(task.Title) + '</div>' +
+                    '<div class="kanban-card__code">' + escapeHtml(task.TaskCode) + '</div>' +
+                    '<div class="kanban-card__footer">' +
+                        '<span class="kanban-priority-pill ' + getPriorityPillClass(task.Priority) + '">' + escapeHtml(task.PriorityText) + '</span>' +
+                        '<span class="' + dueClass + '">Due: ' + escapeHtml(dueLabel) + '</span>' +
+                    '</div>' +
+                '</div>');
+
+                container.append(card);
+            });
+        }
+
+        function setupDragAndDrop() {
+            var dragSrc = null;
+
+            $(document).on('dragstart', '.kanban-card', function(e) {
+                dragSrc = this;
+                e.originalEvent.dataTransfer.setData('text/plain', $(this).data('task-id'));
+                $(this).addClass('opacity-50');
+            });
+
+            $(document).on('dragend', '.kanban-card', function() {
+                dragSrc = null;
+                $(this).removeClass('opacity-50');
+                $('.kanban-column').removeClass('drag-over');
+            });
+
+            $('.kanban-column').on('dragover', function(e) {
+                e.preventDefault();
+                $(this).addClass('drag-over');
+            });
+
+            $('.kanban-column').on('dragleave', function() {
+                $(this).removeClass('drag-over');
+            });
+
+            $('.kanban-column').on('drop', function(e) {
+                e.preventDefault();
+                $(this).removeClass('drag-over');
+
+                var taskId = e.originalEvent.dataTransfer.getData('text/plain');
+                var newStatus = $(this).data('status');
+
+                if (taskId && newStatus) {
+                    updateTaskStatus(taskId, newStatus);
+                }
+            });
+        }
+
+        function updateTaskStatus(taskId, newStatus) {
+            $.ajax({
+                url: '@Url.Action("UpdateStatus", "Task")',
+                type: 'POST',
+                data: { taskId: taskId, newStatus: newStatus },
+                success: function(response) {
+                    if (response.success) {
+                        showToast('Task status updated successfully!');
+                        loadKanbanTasks();
+                    } else {
+                        showToast(response.message || 'Error updating task', false);
+                    }
+                },
+                error: function() {
+                    showToast('Error updating task status', false);
+                }
+            });
+        }
+
+        function showToast(message, isSuccess) {
+            if (isSuccess === undefined) isSuccess = true;
+            var toast = new bootstrap.Toast(document.getElementById('successToast'));
+            $('#toastMessage').text(message);
+            toast.show();
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            return String(text).replace(/[&<>]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            });
+        }
+
+        function parseServerDate(value) {
+            if (!value) return null;
+            if (typeof value === 'string') {
+                var msMatch = /\/Date\((\d+)\)\//.exec(value);
+                if (msMatch) {
+                    var ms = parseInt(msMatch[1], 10);
+                    if (!isNaN(ms)) return new Date(ms);
+                }
+                var dt = new Date(value);
+                return isNaN(dt.getTime()) ? null : dt;
+            }
+            var fallback = new Date(value);
+            return isNaN(fallback.getTime()) ? null : fallback;
+        }
+    </script>
+}

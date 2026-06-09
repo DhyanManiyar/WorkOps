@@ -1,0 +1,132 @@
+@using System.Linq
+@model WorkOps.Models.ManagerApprovalsViewModel
+@{
+    Layout = "~/Views/Shared/_ManagerLayout.cshtml";
+    ViewBag.Title = "Approvals";
+}
+
+<div class="wo-page">
+    <div class="wo-page-header">
+        <div>
+            <h2>Approvals</h2>
+            <p>Review submitted tasks and leave requests</p>
+        </div>
+    </div>
+
+    <ul class="nav nav-tabs wo-tabs-modern mb-4" role="tablist">
+        <li class="nav-item">
+            <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tasksTab" type="button">
+                Tasks <span class="badge bg-warning text-dark">@(Model.PendingTaskApprovals?.Count ?? 0)</span>
+            </button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#leavesTab" type="button">
+                Leaves <span class="badge bg-warning text-dark">@(Model.PendingLeaveApprovals?.Count ?? 0)</span>
+            </button>
+        </li>
+    </ul>
+
+    <div class="tab-content">
+        <div class="tab-pane fade show active" id="tasksTab">
+            <div class="data-card detail-card wo-detail-card">
+                <h6 class="wo-chart-card__title">Submitted tasks &ndash; approve or send back</h6>
+                @if (Model.PendingTaskApprovals == null || !Model.PendingTaskApprovals.Any())
+                {
+                    <p class="text-muted mb-0">No tasks awaiting approval.</p>
+                }
+                else
+                {
+                    foreach (var t in Model.PendingTaskApprovals)
+                    {
+                        <div class="wo-approval-card">
+                            <div class="d-flex justify-content-between flex-wrap gap-2">
+                                <div>
+                                    <strong>@t.Title</strong>
+                                    <div class="text-muted small">@t.TaskCode · @t.AssignedToName · Due @t.DueDate.ToString("dd/MM/yyyy")</div>
+                                    <span class="badge bg-@t.PriorityColor mt-1">@t.PriorityText</span>
+                                </div>
+                                <div class="d-flex gap-2 align-items-start">
+                                    @using (Html.BeginForm("ApproveTask", "Manager", FormMethod.Post, new { style = "display:inline" }))
+                                    {
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@t.TaskID" />
+                                        <button type="submit" class="btn btn-success btn-sm"
+                                                data-wo-confirm="Approve this task?"
+                                                data-wo-confirm-title="Approve task"
+                                                data-wo-confirm-variant="success"
+                                                data-wo-confirm-ok="Approve"><i data-lucide="check" style="width:14px;height:14px;"></i> Approve</button>
+                                    }
+                                    @using (Html.BeginForm("RejectTask", "Manager", FormMethod.Post, new { style = "display:inline" }))
+                                    {
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@t.TaskID" />
+                                        <button type="submit" class="btn btn-outline-warning btn-sm"
+                                                data-wo-confirm="Send this task back to the employee?"
+                                                data-wo-confirm-title="Send back task"
+                                                data-wo-confirm-variant="primary"
+                                                data-wo-confirm-ok="Send back"><i data-lucide="undo-2" style="width:14px;height:14px;"></i> Send back</button>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+
+        <div class="tab-pane fade" id="leavesTab">
+            <div class="data-table-container-premium">
+                @if (Model.PendingLeaveApprovals == null || !Model.PendingLeaveApprovals.Any())
+                {
+                    <div class="wo-empty-state-inline py-4"><p class="mb-0 text-muted">No leave requests pending.</p></div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="employee-table">
+                            <thead>
+                                <tr>
+                                    <th>Employee</th>
+                                    <th>Type</th>
+                                    <th>Dates</th>
+                                    <th>Days</th>
+                                    <th>Reason</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var l in Model.PendingLeaveApprovals)
+                                {
+                                    <tr>
+                                        <td>
+                                            <div class="employee-info">
+                                                <div class="team-avatar">@l.Initials</div>
+                                                <span class="employee-name">@l.EmployeeName</span>
+                                            </div>
+                                        </td>
+                                        <td>@l.LeaveTypeName</td>
+                                        <td>@l.StartDate.ToString("dd/MM") – @l.EndDate.ToString("dd/MM/yyyy")</td>
+                                        <td>@l.TotalDays</td>
+                                        <td>@(string.IsNullOrEmpty(l.Reason) ? "-" : (l.Reason.Length > 40 ? l.Reason.Substring(0, 40) + "..." : l.Reason))</td>
+                                        <td>
+                                            <a href="@Url.Action("ApproveLeave", "Manager", new { id = l.LeaveRequestID })" class="btn btn-success btn-sm"
+                                               data-wo-confirm="Approve this leave request?"
+                                               data-wo-confirm-title="Approve leave"
+                                               data-wo-confirm-variant="success"
+                                               data-wo-confirm-ok="Approve">Approve</a>
+                                            <a href="@Url.Action("RejectLeave", "Manager", new { id = l.LeaveRequestID })" class="btn btn-outline-danger btn-sm"
+                                               data-wo-confirm="Reject this leave request?"
+                                               data-wo-confirm-title="Reject leave"
+                                               data-wo-confirm-variant="danger"
+                                               data-wo-confirm-ok="Reject">Reject</a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

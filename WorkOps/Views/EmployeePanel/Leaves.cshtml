@@ -1,0 +1,76 @@
+@using System.Linq
+@model WorkOps.Models.EmployeeLeavesViewModel
+@{
+    Layout = "~/Views/Shared/_EmployeeLayout.cshtml";
+    ViewBag.Title = "My Leaves";
+}
+
+@section TopBarActions {
+    <a href="@Url.Action("ApplyLeave", "EmployeePanel")" class="btn-topbar-primary">
+        <i data-lucide="plus" style="width:16px;height:16px;"></i> Apply Leave
+    </a>
+}
+
+<div class="wo-page">
+    @if (Model.Balances != null && Model.Balances.Any())
+    {
+        <div class="row g-3 mb-4">
+            @foreach (var b in Model.Balances.Take(4))
+            {
+                <div class="col-md-3 col-6">
+                    <div class="stat-box text-center">
+                        <div class="lbl">@b.LeaveType</div>
+                        <div class="num">@b.RemainingDays</div>
+                        <div class="small text-muted">of @b.TotalDays days left</div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+
+    <div class="data-table-container-premium">
+        <div class="wo-card-header" style="padding:16px 20px 0;">
+            <h5 class="mb-0" style="font-size:16px;font-weight:600;">Leave history</h5>
+        </div>
+        @if (Model.MyRequests == null || !Model.MyRequests.Any())
+        {
+            <div class="wo-empty-state-inline py-5"><p class="mb-0 text-muted">No leave requests yet.</p></div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="employee-table">
+                    <thead>
+                        <tr>
+                            <th>Type</th>
+                            <th>From</th>
+                            <th>To</th>
+                            <th>Days</th>
+                            <th>Applied</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var l in Model.MyRequests)
+                        {
+                            <tr>
+                                <td>@l.LeaveTypeName</td>
+                                <td>@l.StartDate.ToString("dd/MM/yyyy")</td>
+                                <td>@l.EndDate.ToString("dd/MM/yyyy")</td>
+                                <td>@l.TotalDays</td>
+                                <td>@l.AppliedDate.ToString("dd/MM/yyyy")</td>
+                                <td>
+                                    <span class="badge bg-@l.StatusColor">@l.StatusText</span>
+                                    @if (l.Status == 3 && !string.IsNullOrEmpty(l.RejectionReason))
+                                    {
+                                        <div class="small text-danger">@l.RejectionReason</div>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>

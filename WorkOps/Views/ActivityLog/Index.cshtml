@@ -1,0 +1,68 @@
+@model List<WorkOps.Models.ActivityLog>
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewBag.Title = "Activity Logs";
+}
+
+<link href="@Url.Content("~/Content/css/pages/admin-modules.css")" rel="stylesheet" />
+
+<div class="wo-page animate-fade-up">
+    <div class="wo-page-header">
+        <div>
+            <h2>Activity Logs</h2>
+            <p>Recent system events and user actions</p>
+        </div>
+    </div>
+
+    <div class="filter-bar-premium wo-filter-bar">
+        <form method="get" action="@Url.Action("Index", "ActivityLog")" class="filter-grid">
+            <div class="filter-group" style="max-width:220px;">
+                <label>Range</label>
+                <select class="filter-input form-select" name="days" onchange="this.form.submit()">
+                    <option value="1" @(ViewBag.Days == 1 ? "selected" : "")>Last 24 hours</option>
+                    <option value="7" @(ViewBag.Days == 7 ? "selected" : "")>Last 7 days</option>
+                    <option value="30" @(ViewBag.Days == 30 ? "selected" : "")>Last 30 days</option>
+                    <option value="90" @(ViewBag.Days == 90 ? "selected" : "")>Last 90 days</option>
+                </select>
+            </div>
+        </form>
+    </div>
+
+    <div class="data-table-container-premium">
+        @if (Model != null && Model.Any())
+        {
+            <div class="table-responsive">
+                <table class="employee-table">
+                    <thead>
+                        <tr>
+                            <th>Time</th>
+                            <th>User</th>
+                            <th>Activity</th>
+                            <th>Description</th>
+                            <th>Record</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var log in Model)
+                        {
+                            <tr>
+                                <td>@((log.LogDate ?? DateTime.MinValue).ToString("dd MMM yyyy, hh:mm tt"))</td>
+                                <td>@(log.User != null ? log.User.Email : ("User #" + log.UserID))</td>
+                                <td>@(string.IsNullOrWhiteSpace(log.ActivityType) ? "-" : log.ActivityType)</td>
+                                <td>@(string.IsNullOrWhiteSpace(log.Description) ? "-" : log.Description)</td>
+                                <td>@((log.AffectedTable ?? "-") + (log.AffectedRecordID.HasValue ? (" #" + log.AffectedRecordID.Value) : ""))</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="wo-empty-state p-5 text-center text-muted">
+                <i data-lucide="history" style="width:42px;height:42px;opacity:.4;"></i>
+                <p class="mb-0 mt-2">No activity logs found in selected range.</p>
+            </div>
+        }
+    </div>
+</div>
