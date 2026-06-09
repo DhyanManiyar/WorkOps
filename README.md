@@ -8,10 +8,6 @@ The system is built to improve productivity, enhance collaboration, and provide 
 
 ---
 
-**WorkOps** is a web-based company management system built for diploma/final-year projects. It centralizes employee administration, attendance, leave, tasks, and reporting across three role-based panels: **Admin**, **Manager**, and **Employee**.
-
----
-
 ## Table of Contents
 
 - [Project Overview](#project-overview)
