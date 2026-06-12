@@ -388,17 +388,6 @@ Key settings in **`WorkOps/Web.config`** → `<appSettings>`:
 
 ---
 
-### Workflow tip
-
-| Step | Action |
-|------|--------|
-| 1 | Make changes in Visual Studio |
-| 2 | Test locally (F5) |
-| 3 | `git add .` → `git commit -m "description"` → `git push` |
-| 4 | Verify on GitHub that files updated |
-
----
-
 ## License & Author
 
 This project was developed as a **Diploma / Final Year Project**.
